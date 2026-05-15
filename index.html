@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math4Grade — Модуль 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#2563EB; --blue-l:#DBEAFE; --blue-d:#1D4ED8;
+  --pink:#DB2777; --pink-l:#FCE7F3;
+  --green:#16A34A; --green-l:#DCFCE7;
+  --amber:#D97706; --amber-l:#FEF3C7;
+  --red:#DC2626; --red-l:#FEE2E2;
+  --purple:#7C3AED; --purple-l:#EDE9FE;
+  --gray:#64748B; --gray-l:#F1F5F9; --gray-m:#E2E8F0;
+  --dark:#1E293B; --white:#FFFFFF; --bg:#F8FAFC;
+  --font:'Nunito',sans-serif; --font-body:'Nunito Sans',sans-serif;
+  --r:14px; --rs:8px; --shadow:0 4px 20px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--dark);min-height:100vh;}
+
+/* LAYOUT */
+.app{max-width:860px;margin:0 auto;padding:20px 16px 80px;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:24px;position:sticky;top:0;background:var(--bg);z-index:10;padding:12px 0 8px;}
+.mod-badge{font-family:var(--font);font-size:11px;font-weight:800;padding:5px 12px;border-radius:99px;background:var(--blue);color:#fff;letter-spacing:.06em;white-space:nowrap;}
+.prog-track{flex:1;height:8px;background:var(--gray-m);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--pink));border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.day-dots{display:flex;gap:6px;}
+.day-dot{width:10px;height:10px;border-radius:50%;background:var(--gray-m);transition:all .3s;}
+.day-dot.done{background:var(--green);}
+.day-dot.active{background:var(--blue);transform:scale(1.3);}
+
+/* CARDS */
+.card{background:var(--white);border:1.5px solid var(--gray-m);border-radius:var(--r);padding:24px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-hero{background:linear-gradient(135deg,#EFF6FF,#FDF2F8);border-color:#BFDBFE;}
+.card-day{border-left:4px solid var(--blue);}
+
+/* TYPOGRAPHY */
+.hero-title{font-family:var(--font);font-size:28px;font-weight:900;color:var(--dark);margin-bottom:8px;line-height:1.2;}
+.hero-sub{font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:20px;}
+.day-title{font-family:var(--font);font-size:20px;font-weight:800;color:var(--dark);margin-bottom:4px;}
+.day-goal{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:20px;}
+.task-title{font-family:var(--font);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+.task-sub{font-size:13px;color:var(--gray);margin-bottom:16px;line-height:1.5;}
+
+/* LEVEL BADGE */
+.level{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:10px;}
+.level-1{background:#FEF9C3;color:#854D0E;}
+.level-2{background:#DBEAFE;color:#1E40AF;}
+.level-3{background:#F3E8FF;color:#6B21A8;}
+
+/* CHARS */
+.chars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.bubble{padding:12px 14px;border-radius:var(--rs);font-size:13px;line-height:1.6;}
+.bubble.tim{background:#EFF6FF;border-left:3px solid var(--blue);}
+.bubble.sof{background:#FDF2F8;border-left:3px solid var(--pink);}
+.bname{font-family:var(--font);font-size:11px;font-weight:800;margin-bottom:3px;letter-spacing:.04em;}
+.bname.tim{color:var(--blue);}
+.bname.sof{color:var(--pink);}
+
+/* THEORY BOX */
+.theory{background:var(--gray-l);border-radius:var(--rs);padding:14px 16px;margin-bottom:20px;border-left:3px solid var(--blue);}
+.theory-title{font-family:var(--font);font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;}
+.theory p{font-size:13px;line-height:1.7;color:var(--dark);margin-bottom:6px;}
+.theory p:last-child{margin:0;}
+.theory code{background:var(--blue-l);color:var(--blue-d);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:13px;}
+
+/* TASK BLOCK */
+.task-block{border:1.5px solid var(--gray-m);border-radius:var(--r);padding:20px;margin-bottom:16px;transition:border-color .2s;}
+.task-block.correct{border-color:var(--green);background:#F0FDF4;}
+.task-block.wrong{border-color:var(--red);background:#FFF5F5;}
+.task-block.skipped{border-color:var(--gray-m);opacity:.7;}
+.task-q{font-size:15px;color:var(--dark);line-height:1.6;margin-bottom:12px;}
+.task-note{font-size:13px;color:var(--gray);font-style:italic;margin-bottom:10px;}
+
+/* OPTIONS */
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.obtn{font-family:var(--font);font-size:14px;font-weight:600;padding:8px 18px;border-radius:var(--rs);border:1.5px solid var(--gray-m);background:var(--white);color:var(--dark);cursor:pointer;transition:all .15s;}
+.obtn:hover{border-color:var(--blue);background:var(--blue-l);}
+.obtn.ok{background:var(--green-l);border-color:var(--green);color:#15803D;}
+.obtn.no{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.obtn.selected{background:var(--blue-l);border-color:var(--blue);color:var(--blue-d);}
+.obtn:disabled{cursor:default;}
+
+/* MATCH */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;}
+.col-hd{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.mrow{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.mval{font-family:var(--font);font-size:16px;font-weight:700;color:var(--dark);min-width:60px;}
+.msel{font-size:14px;font-family:var(--font);font-weight:600;padding:6px 10px;border-radius:var(--rs);border:1.5px solid var(--gray-m);background:var(--gray-l);color:var(--dark);cursor:pointer;min-width:100px;}
+.msel.ok{background:var(--green-l);border-color:var(--green);}
+.msel.no{background:var(--red-l);border-color:var(--red);}
+.mind{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.mind.ok{background:var(--green-l);color:var(--green);}
+.mind.no{background:var(--red-l);color:var(--red);}
+.arow{display:flex;align-items:center;gap:8px;margin-bottom:7px;transition:opacity .2s;}
+.albl{font-family:var(--font);font-size:12px;font-weight:700;width:26px;height:26px;border-radius:6px;background:var(--gray-l);border:1px solid var(--gray-m);display:flex;align-items:center;justify-content:center;color:var(--gray);flex-shrink:0;}
+.aval{font-size:14px;font-family:var(--font);font-weight:600;color:var(--dark);}
+.arow.used{opacity:.35;text-decoration:line-through;}
+
+/* TABLE */
+.fill-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.fill-table th{background:var(--blue);color:#fff;font-family:var(--font);font-size:13px;font-weight:700;padding:8px 12px;text-align:left;}
+.fill-table td{border:1px solid var(--gray-m);padding:8px 12px;font-size:14px;}
+.fill-table tr:nth-child(even) td{background:var(--gray-l);}
+.fill-input{font-size:14px;padding:5px 8px;border:1.5px solid var(--gray-m);border-radius:6px;background:var(--white);color:var(--dark);width:100%;font-family:var(--font);font-weight:600;}
+.fill-input.ok{background:var(--green-l);border-color:var(--green);}
+.fill-input.no{background:var(--red-l);border-color:var(--red);}
+
+/* GRID 10x10 */
+.grid10{display:inline-grid;grid-template-columns:repeat(10,28px);gap:2px;margin:10px 0;}
+.gc{width:28px;height:28px;border-radius:4px;border:1.5px solid var(--gray-m);background:var(--white);cursor:pointer;transition:all .1s;}
+.gc:hover{border-color:var(--blue);}
+.gc.blue{background:var(--blue);border-color:var(--blue-d);}
+.gstat{font-family:var(--font);font-size:13px;font-weight:700;color:var(--gray);margin:6px 0 10px;}
+
+/* DRAG & DROP */
+.pool-area{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:48px;padding:10px;background:var(--gray-l);border-radius:var(--rs);border:1.5px dashed var(--gray-m);}
+.groups-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.gbox{background:var(--gray-l);border:1.5px solid var(--gray-m);border-radius:var(--rs);padding:8px;}
+.gbox-title{font-family:var(--font);font-size:11px;font-weight:800;color:var(--gray);text-align:center;margin-bottom:6px;text-transform:uppercase;}
+.dzone{min-height:56px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;padding:4px;border-radius:6px;transition:background .15s;}
+.dzone.hl{background:var(--blue-l);}
+.chip{font-family:var(--font);font-size:12px;font-weight:700;padding:4px 10px;border-radius:var(--rs);border:1.5px solid var(--gray-m);background:var(--white);color:var(--dark);cursor:grab;user-select:none;transition:all .1s;}
+.chip:hover{border-color:var(--blue);background:var(--blue-l);}
+.chip.placed{background:var(--blue-l);color:var(--blue-d);border-color:#93C5FD;}
+.chip.cok{background:var(--green-l);color:#15803D;border-color:var(--green);}
+.chip.cno{background:var(--red-l);color:var(--red);border-color:var(--red);}
+
+/* FEEDBACK */
+.fb{font-family:var(--font);font-size:13px;font-weight:700;margin-top:10px;min-height:18px;padding:6px 10px;border-radius:6px;}
+.fb.ok{background:var(--green-l);color:#15803D;}
+.fb.no{background:var(--red-l);color:var(--red);}
+.fb.info{background:var(--blue-l);color:var(--blue-d);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);font-size:14px;font-weight:700;padding:10px 22px;border-radius:var(--rs);border:none;cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-d);transform:translateY(-1px);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#15803D;}
+.btn-outline{background:transparent;color:var(--dark);border:1.5px solid var(--gray-m);}
+.btn-outline:hover{background:var(--gray-l);}
+.btn-sm{font-size:13px;padding:7px 16px;}
+.action-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+
+/* SCORE BAR */
+.score-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--gray-l);border-radius:var(--rs);margin-top:14px;}
+.sv{font-family:var(--font);font-size:20px;font-weight:900;color:var(--dark);}
+
+/* CODE BOX */
+.code-box{background:var(--dark);border-radius:var(--r);padding:20px 24px;margin:16px 0;}
+.code-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.code-value{font-family:'Courier New',monospace;font-size:22px;font-weight:700;color:#38BDF8;letter-spacing:3px;word-break:break-all;}
+.code-copy{font-family:var(--font);font-size:12px;font-weight:700;padding:6px 14px;border-radius:6px;background:#1E40AF;color:#fff;border:none;cursor:pointer;margin-top:10px;}
+.code-copy:hover{background:#1D4ED8;}
+
+/* DAY CARDS */
+.day-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0;}
+.day-card{background:var(--white);border:1.5px solid var(--gray-m);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .2s;}
+.day-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:var(--shadow);}
+.day-card.completed{border-color:var(--green);background:#F0FDF4;}
+.day-card.locked{opacity:.5;cursor:not-allowed;}
+.day-card .dc-num{font-family:var(--font);font-size:28px;font-weight:900;color:var(--blue);margin-bottom:4px;}
+.day-card.completed .dc-num{color:var(--green);}
+.day-card .dc-title{font-family:var(--font);font-size:14px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+.day-card .dc-sub{font-size:12px;color:var(--gray);}
+.day-card .dc-status{font-size:11px;font-weight:700;margin-top:8px;padding:3px 8px;border-radius:99px;display:inline-block;}
+.dc-status.done{background:var(--green-l);color:var(--green);}
+.dc-status.todo{background:var(--blue-l);color:var(--blue-d);}
+.dc-status.locked{background:var(--gray-l);color:var(--gray);}
+
+/* BLOG TASK */
+.blog-box{background:linear-gradient(135deg,#FDF2F8,#EFF6FF);border:1.5px solid #BFDBFE;border-radius:var(--r);padding:20px;margin-top:16px;}
+.blog-title{font-family:var(--font);font-size:14px;font-weight:800;color:var(--pink);margin-bottom:8px;}
+.blog-field{width:100%;font-size:14px;padding:8px 12px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-family:var(--font-body);resize:vertical;min-height:60px;margin-bottom:8px;}
+.blog-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.blog-label{font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;}
+.sum-box{background:var(--white);border:1.5px solid var(--gray-m);border-radius:var(--rs);padding:14px;text-align:center;}
+.sum-num{font-family:var(--font);font-size:32px;font-weight:900;color:var(--blue);}
+.sum-lbl{font-size:12px;color:var(--gray);margin-top:4px;}
+
+/* CONCEPT GRID */
+.concept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+.concept-item{padding:14px;border-radius:var(--rs);text-align:center;}
+.ci-1{background:#EFF6FF;}
+.ci-2{background:#F0FDF4;}
+.ci-3{background:#FDF4FF;}
+.ci-val{font-family:var(--font);font-size:24px;font-weight:900;margin-bottom:4px;}
+.ci-lbl{font-size:11px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+
+/* PROGRESS TRACKER */
+.task-tracker{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.tt-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--gray-m);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gray);transition:all .2s;}
+.tt-dot.ok{background:var(--green);border-color:var(--green);color:#fff;}
+.tt-dot.no{background:var(--red);border-color:var(--red);color:#fff;}
+.tt-dot.skip{background:var(--gray-l);border-color:var(--gray-m);color:var(--gray);}
+.tt-dot.active{border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 3px var(--blue-l);}
+
+/* WARMUP */
+.warmup-q{font-family:var(--font);font-size:18px;font-weight:700;color:var(--dark);text-align:center;margin:10px 0;}
+.warmup-input{font-size:20px;padding:10px 16px;border:2px solid var(--gray-m);border-radius:var(--rs);font-family:var(--font);font-weight:700;width:150px;text-align:center;display:block;margin:10px auto;}
+.warmup-timer{font-family:var(--font);font-size:14px;font-weight:700;color:var(--gray);text-align:center;}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .match-wrap,.chars,.day-grid,.groups-g,.summary-grid,.concept-grid{grid-template-columns:1fr;}
+  .blog-row{grid-template-columns:1fr;}
+  .hero-title{font-size:22px;}
+  .grid10{grid-template-columns:repeat(10,24px);}
+  .gc{width:24px;height:24px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="mod-badge">Модуль 1</span>
+  <div class="prog-track"><div class="prog-fill" id="progfill" style="width:0%"></div></div>
+  <div class="day-dots" id="daydots"></div>
+</div>
+
+<!-- S0: ГЛАВНАЯ -->
+<div id="s0" class="screen active">
+  <div class="card card-hero">
+    <div class="concept-grid">
+      <div class="concept-item ci-1"><div class="ci-val" style="color:var(--blue)">1/2</div><div class="ci-lbl">Дріб</div></div>
+      <div class="concept-item ci-2"><div class="ci-val" style="color:var(--green)">0,5</div><div class="ci-lbl">Десяткова</div></div>
+      <div class="concept-item ci-3"><div class="ci-val" style="color:var(--pink)">50%</div><div class="ci-lbl">Відсоток</div></div>
+    </div>
+    <p class="hero-title">Три форми числа 🔐</p>
+    <p class="hero-sub">Модуль 1 — чотири дні роботи + зум. Щодня відкривається нова кімната. Виконуй завдання, збирай коди — і відкривай сейф модуля!</p>
+    <div class="chars">
+      <div class="bubble tim"><div class="bname tim">Тім</div>Якщо я бачу 1/2, 0,5 і 50% — це три різні відповіді?</div>
+      <div class="bubble sof"><div class="bname sof">Софія</div>Ні! Це одне й те саме число. За чотири дні доведемо це разом.</div>
+    </div>
+    <div class="day-grid" id="daygrid"></div>
+    <div id="all-done-box" style="display:none">
+      <div class="code-box">
+        <div class="code-label">🏆 Всі 4 дні пройдено! Твій код модуля:</div>
+        <div class="code-value" id="module-code">—</div>
+        <button class="code-copy" onclick="copyCode('module-code')">Скопіювати</button>
+      </div>
+      <p style="font-size:13px;color:var(--gray);margin-top:8px">Введи цей код у Google Form фокус-групи → і відкривай сейф Модуля 1!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ДЕНЬ 1 ═══ -->
+<div id="s1" class="screen">
+  <div class="card card-day">
+    <div class="day-title">День 1 — Візуальне розуміння %</div>
+    <p class="day-goal">Сьогодні тренуємо очей: впізнаємо відсоток на реальних об'єктах і вчимо ключові значення напам'ять.</p>
+    <div class="chars">
+      <div class="bubble sof"><div class="bname sof">Софія</div>Перш ніж рахувати — потрібно побачити. Поїхали!</div>
+      <div class="bubble tim"><div class="bname tim">Тім</div>Я вже дивлюся на піцу інакше 🍕</div>
+    </div>
+    <div class="task-tracker" id="tt1"></div>
+  </div>
+
+  <!-- 1.1 -->
+  <div class="task-block" id="tb1-1">
+    <span class="level level-1">★ Завдання 1.1</span>
+    <p class="task-title">Яка частина з'їдена?</p>
+    <p class="task-sub">Обери правильну відповідь для кожного об'єкта — серед варіантів є пастки!</p>
+    <div id="t11-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT11()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT11()">Скинути</button>
+    </div>
+    <div class="fb" id="t11-fb"></div>
+  </div>
+
+  <!-- 1.2 -->
+  <div class="task-block" id="tb1-2">
+    <span class="level level-1">★ Завдання 1.2</span>
+    <p class="task-title">З'єднай об'єкт і число</p>
+    <p class="task-sub">Кожен об'єкт — це якась частина цілого. З'єднай з відсотком, дробом і десятковою. Зайві варіанти — пастки.</p>
+    <div id="t12-wrap"></div>
+    <div class="fb" id="t12-fb"></div>
+  </div>
+
+  <!-- 1.3 -->
+  <div class="task-block" id="tb1-3">
+    <span class="level level-1">★ Завдання 1.3</span>
+    <p class="task-title">Що більше?</p>
+    <p class="task-sub">Не рахуй — вирішуй логічно. Уяви два склянки з водою.</p>
+    <div class="theory">
+      <div class="theory-title">💧 Підказка — склянка з водою</div>
+      <p>Уяви дві склянки: одна наповнена до <strong>1/3</strong>, інша до <strong>25%</strong>. В якій більше води? 1/3 ≈ 33%, отже 1/3 > 25%.</p>
+      <p>Щоб порівнювати — переводь все в одну форму. Найзручніше — у відсотки.</p>
+    </div>
+    <div id="t13-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT13()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT13()">Скинути</button>
+    </div>
+    <div class="fb" id="t13-fb"></div>
+  </div>
+
+  <!-- 1.4 -->
+  <div class="task-block" id="tb1-4">
+    <span class="level level-2">★★ Завдання 1.4</span>
+    <p class="task-title">Запам'ятай, не рахуй</p>
+    <p class="task-sub">Заповни таблицю без калькулятора — як таблицю множення. Потім перевір себе.</p>
+    <div class="chars" style="margin-bottom:14px">
+      <div class="bubble sof"><div class="bname sof">Софія</div>Є значення, які треба знати напам'ять — вони знадобляться щодня.</div>
+      <div class="bubble tim"><div class="bname tim">Тім</div>А 1/3 я не запам'ятав... це нормально?</div>
+    </div>
+    <div id="t14-table"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT14()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT14()">Скинути</button>
+    </div>
+    <div class="fb" id="t14-fb"></div>
+  </div>
+
+  <!-- 1.5 -->
+  <div class="task-block" id="tb1-5">
+    <span class="level level-2">★★ Завдання 1.5</span>
+    <p class="task-title">Зафарбуй сітку 10×10</p>
+    <p class="task-sub">Натискай на клітинки — вони стають синіми. Перевір точну кількість.</p>
+    <div id="t15-grids"></div>
+  </div>
+
+  <!-- 1.6 -->
+  <div class="task-block" id="tb1-6">
+    <span class="level level-3">★★★ Бонус Софії — Три форми + Проміле</span>
+    <p class="task-title">Три форми одного числа</p>
+    <div id="t16-wrap"></div>
+  </div>
+
+  <!-- BLOG DAY 1 -->
+  <div class="blog-box">
+    <div class="blog-title">📝 Завдання для блогу — Взаємоперевірка</div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Склади власне завдання за шаблоном. Відправ у чат групи — інший учасник перевірить!</p>
+    <div class="blog-row">
+      <div><div class="blog-label">Ситуація</div><input class="blog-field" style="min-height:unset" placeholder="Наприклад: В коробці 8 олівців, 2 червоних..." id="blog1-sit"></div>
+      <div>
+        <div class="blog-row">
+          <div><div class="blog-label">Всього</div><input class="blog-field" style="min-height:unset" placeholder="8" id="blog1-total"></div>
+          <div><div class="blog-label">Частина</div><input class="blog-field" style="min-height:unset" placeholder="2" id="blog1-part"></div>
+        </div>
+      </div>
+    </div>
+    <div class="blog-row">
+      <div><div class="blog-label">Дріб</div><input class="blog-field" style="min-height:unset" placeholder="2/8 = 1/4" id="blog1-frac"></div>
+      <div><div class="blog-label">Десяткова</div><input class="blog-field" style="min-height:unset" placeholder="0,25" id="blog1-dec"></div>
+      <div><div class="blog-label">Відсоток</div><input class="blog-field" style="min-height:unset" placeholder="25%" id="blog1-pct"></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="checkBlog1()">Перевірити три форми</button>
+    <div class="fb" id="blog1-fb"></div>
+  </div>
+
+  <!-- CODE DAY 1 -->
+  <div id="code1-box" style="display:none">
+    <div class="code-box">
+      <div class="code-label">🔑 Твій код Дня 1:</div>
+      <div class="code-value" id="code1-val">—</div>
+      <button class="code-copy" onclick="copyCode('code1-val')">Скопіювати</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-outline" onclick="goTo(0)">← Головна</button>
+    <button class="btn btn-primary" onclick="finishDay(1)">Завершити день 1 →</button>
+  </div>
+</div>
+
+<!-- ═══ ДЕНЬ 2 ═══ -->
+<div id="s2" class="screen">
+  <div class="card card-day">
+    <div class="day-title">День 2 — Десяткова ↔ Відсоток</div>
+    <p class="day-goal">Сьогодні вільно переводимо десяткову у відсоток і навпаки — в обидва боки, з будь-якими числами.</p>
+    <div class="chars">
+      <div class="bubble tim"><div class="bname tim">Тім</div>Вчора бачили числа на картинках. Сьогодні — тільки цифри.</div>
+      <div class="bubble sof"><div class="bname sof">Софія</div>Запам'ятай: десяткова × 100 = відсоток. Відсоток ÷ 100 = десяткова.</div>
+    </div>
+    <div class="theory">
+      <div class="theory-title">📐 Правило дня</div>
+      <p><strong>Десяткова → Відсоток:</strong> зсуваємо кому на 2 знаки вправо.</p>
+      <p><code>0,37 → 37%</code> &nbsp; <code>0,05 → 5%</code> &nbsp; <code>1,75 → 175%</code> &nbsp; <code>0,003 → 0,3%</code></p>
+      <p style="margin-top:8px"><strong>Відсоток → Десяткова:</strong> зсуваємо кому на 2 знаки вліво.</p>
+      <p><code>48% → 0,48</code> &nbsp; <code>5% → 0,05</code> &nbsp; <code>320% → 3,2</code> &nbsp; <code>0,6% → 0,006</code></p>
+    </div>
+    <div class="task-tracker" id="tt2"></div>
+  </div>
+
+  <!-- 2.1 -->
+  <div class="task-block" id="tb2-1">
+    <span class="level level-1">★ Завдання 2.1</span>
+    <p class="task-title">Десяткова → Відсоток</p>
+    <div id="t21-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkFill('t21')">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetFill('t21')">Скинути</button>
+    </div>
+    <div class="fb" id="t21-fb"></div>
+  </div>
+
+  <!-- 2.2 -->
+  <div class="task-block" id="tb2-2">
+    <span class="level level-1">★ Завдання 2.2</span>
+    <p class="task-title">Відсоток → Десяткова</p>
+    <div id="t22-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkFill('t22')">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetFill('t22')">Скинути</button>
+    </div>
+    <div class="fb" id="t22-fb"></div>
+  </div>
+
+  <!-- 2.3 -->
+  <div class="task-block" id="tb2-3">
+    <span class="level level-1">★ Завдання 2.3</span>
+    <p class="task-title">Знайди пару</p>
+    <p class="task-sub">З'єднай десяткову з відсотком. Зайві варіанти — пастки.</p>
+    <div id="t23-wrap"></div>
+    <div class="fb" id="t23-fb"></div>
+  </div>
+
+  <!-- 2.4 -->
+  <div class="task-block" id="tb2-4">
+    <span class="level level-2">★★ Завдання 2.4</span>
+    <p class="task-title">Більше 100% і менше 1%</p>
+    <div class="chars" style="margin-bottom:12px">
+      <div class="bubble sof"><div class="bname sof">Софія</div>Відсотки бувають більше 100 і менше 1. Правило те саме — зсув коми.</div>
+      <div class="bubble tim"><div class="bname tim">Тім</div>Більше 100%? Це як?</div>
+    </div>
+    <div id="t24-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkFill('t24')">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetFill('t24')">Скинути</button>
+    </div>
+    <div class="fb" id="t24-fb"></div>
+  </div>
+
+  <!-- 2.5 -->
+  <div class="task-block" id="tb2-5">
+    <span class="level level-2">★★ Завдання 2.5</span>
+    <p class="task-title">Знайди помилку Тіма</p>
+    <p class="task-sub">Тім вирішував задачі і зробив кілька помилок. Знайди де він помилився — ✓ або ✗.</p>
+    <div id="t25-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT25()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT25()">Скинути</button>
+    </div>
+    <div class="fb" id="t25-fb"></div>
+  </div>
+
+  <!-- 2.6 -->
+  <div class="task-block" id="tb2-6">
+    <span class="level level-3">★★★ Бонус Софії — Життєві задачі</span>
+    <p class="task-title">Застосовуємо в житті</p>
+    <div id="t26-wrap"></div>
+  </div>
+
+  <!-- 2.7 -->
+  <div class="task-block" id="tb2-7">
+    <span class="level level-3">★★★ Бонус Софії — Коли відсоток > 100</span>
+    <p class="task-title">Що означає більше 100%?</p>
+    <div id="t27-wrap"></div>
+  </div>
+
+  <!-- BLOG DAY 2 -->
+  <div class="blog-box">
+    <div class="blog-title">📝 Завдання для блогу — День 2</div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Склади ситуацію де є переведення десяткової у відсоток — або навпаки.</p>
+    <div class="blog-row">
+      <div><div class="blog-label">Ситуація</div><textarea class="blog-field" placeholder="У грі мій персонаж відновив 0,25 здоров'я..." id="blog2-sit"></textarea></div>
+      <div>
+        <div><div class="blog-label">Десяткова форма</div><input class="blog-field" style="min-height:unset" placeholder="0,25" id="blog2-dec"></div>
+        <div style="margin-top:8px"><div class="blog-label">Відсоток</div><input class="blog-field" style="min-height:unset" placeholder="25%" id="blog2-pct"></div>
+      </div>
+    </div>
+    <div><div class="blog-label">Чому це цікаво або дивно?</div><textarea class="blog-field" placeholder="0,25 і 25% звучать по-різному, але це одне число!" id="blog2-why"></textarea></div>
+    <button class="btn btn-outline btn-sm" onclick="checkBlog2()">Перевірити переведення</button>
+    <div class="fb" id="blog2-fb"></div>
+  </div>
+
+  <div id="code2-box" style="display:none">
+    <div class="code-box">
+      <div class="code-label">🔑 Твій код Дня 2:</div>
+      <div class="code-value" id="code2-val">—</div>
+      <button class="code-copy" onclick="copyCode('code2-val')">Скопіювати</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-outline" onclick="goTo(0)">← Головна</button>
+    <button class="btn btn-primary" onclick="finishDay(2)">Завершити день 2 →</button>
+  </div>
+</div>
+
+<!-- ═══ ДЕНЬ 3 ═══ -->
+<div id="s3" class="screen">
+  <div class="card card-day">
+    <div class="day-title">День 3 — Дріб ↔ Відсоток ↔ Десяткова</div>
+    <p class="day-goal">Замикаємо коло: вільно переводимо між усіма трьома формами в будь-якому напрямку.</p>
+    <div class="chars">
+      <div class="bubble sof"><div class="bname sof">Софія</div>Вчора освоїли десяткову і відсоток. Сьогодні додаємо третю форму — звичайний дріб.</div>
+      <div class="bubble tim"><div class="bname tim">Тім</div>Після сьогодні коло замкнеться!</div>
+    </div>
+    <div class="theory">
+      <div class="theory-title">📐 Правила дня</div>
+      <p><strong>Дріб → Десяткова:</strong> ділимо чисельник на знаменник. <code>3/8 = 0,375</code></p>
+      <p><strong>Дріб → Відсоток:</strong> спочатку дріб → десяткова, потім × 100. <code>3/8 = 37,5%</code></p>
+      <p><strong>Відсоток → Дріб:</strong> пишемо через 100, скорочуємо. <code>75% = 75/100 = 3/4</code></p>
+      <p><strong>Десяткова → Дріб:</strong> <code>0,375 = 375/1000 = 3/8</code></p>
+    </div>
+    <div class="task-tracker" id="tt3"></div>
+  </div>
+
+  <div class="task-block" id="tb3-1">
+    <span class="level level-1">★ Завдання 3.1</span>
+    <p class="task-title">Дріб → Десяткова</p>
+    <div id="t31-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkFill('t31')">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetFill('t31')">Скинути</button>
+    </div>
+    <div class="fb" id="t31-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb3-2">
+    <span class="level level-1">★ Завдання 3.2</span>
+    <p class="task-title">Відсоток → Дріб</p>
+    <p class="task-sub">Переведи десяткову у звичайний дріб. Скороти якщо можливо.</p>
+    <div id="t32-wrap"></div>
+    <div class="fb" id="t32-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb3-3">
+    <span class="level level-1">★ Завдання 3.3</span>
+    <p class="task-title">Кругова таблиця</p>
+    <p class="task-sub">Заповни таблицю — кожен рядок це одне і те саме число в трьох формах.</p>
+    <div id="t33-table"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT33()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT33()">Скинути</button>
+    </div>
+    <div class="fb" id="t33-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb3-4">
+    <span class="level level-2">★★ Завдання 3.4</span>
+    <p class="task-title">Складні дроби → Відсоток</p>
+    <div id="t34-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkFill('t34')">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetFill('t34')">Скинути</button>
+    </div>
+    <div class="fb" id="t34-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb3-5">
+    <span class="level level-2">★★ Завдання 3.5</span>
+    <p class="task-title">Дроби з десятковими відсотками</p>
+    <div id="t35-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkFill('t35')">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetFill('t35')">Скинути</button>
+    </div>
+    <div class="fb" id="t35-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb3-6">
+    <span class="level level-3">★★★ Бонус Софії — Розстав по порядку</span>
+    <p class="task-title">Порівнюємо всі три форми разом</p>
+    <div id="t36-wrap"></div>
+  </div>
+
+  <div class="task-block" id="tb3-7">
+    <span class="level level-3">★★★ Бонус Софії — Періодичні дроби</span>
+    <p class="task-title">Чому 0,999... = 1?</p>
+    <div id="t37-wrap"></div>
+  </div>
+
+  <div class="blog-box">
+    <div class="blog-title">📝 Завдання для блогу — День 3</div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Склади задачу де треба перевести дріб у відсоток або навпаки.</p>
+    <div><div class="blog-label">Ситуація</div><textarea class="blog-field" placeholder="Я пройшов 3/8 марафону. Скільки відсотків вже позаду?" id="blog3-sit"></textarea></div>
+    <div class="blog-row">
+      <div><div class="blog-label">Вихідна форма (дріб/відсоток)</div><input class="blog-field" style="min-height:unset" placeholder="3/8" id="blog3-from"></div>
+      <div><div class="blog-label">Відповідь у відсотках</div><input class="blog-field" style="min-height:unset" placeholder="37,5%" id="blog3-ans"></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="saveBlog(3)">Зберегти</button>
+    <div class="fb" id="blog3-fb"></div>
+  </div>
+
+  <div id="code3-box" style="display:none">
+    <div class="code-box">
+      <div class="code-label">🔑 Твій код Дня 3:</div>
+      <div class="code-value" id="code3-val">—</div>
+      <button class="code-copy" onclick="copyCode('code3-val')">Скопіювати</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-outline" onclick="goTo(0)">← Головна</button>
+    <button class="btn btn-primary" onclick="finishDay(3)">Завершити день 3 →</button>
+  </div>
+</div>
+
+<!-- ═══ ДЕНЬ 4 ═══ -->
+<div id="s4" class="screen">
+  <div class="card card-day">
+    <div class="day-title">День 4 — Все разом + Життя</div>
+    <p class="day-goal">Фінальний день: застосовуємо всі три форми в реальних ситуаціях. Замічаємо маніпуляції — думаємо критично. Підготовка до зуму.</p>
+    <div class="chars">
+      <div class="bubble tim"><div class="bname tim">Тім</div>Три дні тренувалися. Сьогодні — справжня справа!</div>
+      <div class="bubble sof"><div class="bname sof">Софія</div>І готуємося до зуму. Там будуть реальні історії — ти вже вмієш їх рахувати.</div>
+    </div>
+    <div class="task-tracker" id="tt4"></div>
+  </div>
+
+  <!-- WARMUP -->
+  <div class="task-block" id="tb4-warm">
+    <span class="level level-1">⚡ Розминка — 10 питань</span>
+    <p class="task-title">Швидка перевірка пам'яті</p>
+    <p class="task-sub">Без підказок — відповідай по пам'яті.</p>
+    <div id="t4warm-wrap"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkWarmup()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetWarmup()">Скинути</button>
+    </div>
+    <div class="fb" id="t4warm-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb4-1">
+    <span class="level level-1">★ Завдання 4.1</span>
+    <p class="task-title">Знайди зайве</p>
+    <p class="task-sub">В кожному рядку 4 числа. Три — одне й те саме в різних формах. Одне — зайве.</p>
+    <div id="t41-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT41()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT41()">Скинути</button>
+    </div>
+    <div class="fb" id="t41-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb4-2">
+    <span class="level level-1">★ Завдання 4.2</span>
+    <p class="task-title">Розстав по зростанню</p>
+    <p class="task-sub">Числа в різних формах — переведи все в одну, потім порівняй.</p>
+    <div id="t42-wrap"></div>
+  </div>
+
+  <div class="task-block" id="tb4-3">
+    <span class="level level-1">★ Завдання 4.3</span>
+    <p class="task-title">Клас і гуртки</p>
+    <p class="task-sub">У класі 25 учнів. 8 займаються спортом, 5 ходять на музику. Решта — ні в що.</p>
+    <div id="t43-wrap"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT43()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT43()">Скинути</button>
+    </div>
+    <div class="fb" id="t43-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb4-4">
+    <span class="level level-2">★★ Завдання 4.4</span>
+    <p class="task-title">Складна таблиця мікс</p>
+    <div id="t44-table"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT44()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT44()">Скинути</button>
+    </div>
+    <div class="fb" id="t44-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb4-5">
+    <span class="level level-2">★★ Завдання 4.5</span>
+    <p class="task-title">Знайди помилку в рекламі</p>
+    <p class="task-sub">Тім і Софія вивчають рекламні листівки. Деякі твердження — помилкові. Перевір кожне.</p>
+    <div id="t45-items"></div>
+    <div class="action-row">
+      <button class="btn btn-primary btn-sm" onclick="checkT45()">Перевірити</button>
+      <button class="btn btn-outline btn-sm" onclick="resetT45()">Скинути</button>
+    </div>
+    <div class="fb" id="t45-fb"></div>
+  </div>
+
+  <div class="task-block" id="tb4-6">
+    <span class="level level-3">★★★ Бонус Софії — Проміле в житті</span>
+    <div id="t46-wrap"></div>
+  </div>
+
+  <div class="task-block" id="tb4-7">
+    <span class="level level-3">★★★ Бонус Софії — Перше розслідування</span>
+    <p class="task-title">Знайди число в реальному житті</p>
+    <p class="task-sub">Знайди на упаковці, в рекламі, в грі або в новинах — число в будь-якій формі.</p>
+    <div class="blog-row" style="margin-top:12px">
+      <div><div class="blog-label">Де знайшов</div><input class="blog-field" style="min-height:unset" placeholder="На упаковці печива" id="inv-where"></div>
+      <div><div class="blog-label">Що написано</div><input class="blog-field" style="min-height:unset" placeholder="0,23" id="inv-what"></div>
+    </div>
+    <div class="blog-row">
+      <div><div class="blog-label">Форма числа</div>
+        <select class="blog-field" style="min-height:unset" id="inv-form">
+          <option>Десяткова</option><option>Відсоток</option><option>Дріб</option>
+        </select>
+      </div>
+      <div><div class="blog-label">Переведи в інші дві форми</div><input class="blog-field" style="min-height:unset" placeholder="23/100 = 23%" id="inv-convert"></div>
+    </div>
+    <div><div class="blog-label">Чому вибрали саме цю форму запису?</div><textarea class="blog-field" placeholder="0,23 звучить менше ніж 23%..." id="inv-why"></textarea></div>
+    <button class="btn btn-outline btn-sm" onclick="saveInv()">Зберегти розслідування</button>
+    <div class="fb" id="inv-fb"></div>
+  </div>
+
+  <!-- BLOG DAY 4 -->
+  <div class="blog-box">
+    <div class="blog-title">📝 Пост для блогу «100% чесно» — Фінал модуля</div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Оформи своє розслідування як пост. Найкращий пост увійде в блог!</p>
+    <div><div class="blog-label">Заголовок</div><input class="blog-field" style="min-height:unset" placeholder="«Цукор ховається»" id="post-title"></div>
+    <div><div class="blog-label">Ситуація</div><textarea class="blog-field" placeholder="На батончику мюслі написано..." id="post-sit"></textarea></div>
+    <div class="blog-row">
+      <div><div class="blog-label">Репліка Тіма</div><textarea class="blog-field" placeholder="Я думав 0,23 це мало!" id="post-tim"></textarea></div>
+      <div><div class="blog-label">Репліка Софії</div><textarea class="blog-field" placeholder="Перевіримо цифри..." id="post-sof"></textarea></div>
+    </div>
+    <div><div class="blog-label">Вердикт</div>
+      <div class="opts" style="margin-top:6px">
+        <button class="obtn" id="verdict-yes" onclick="setVerdict('yes')">✓ 100% чесно</button>
+        <button class="obtn" id="verdict-no" onclick="setVerdict('no')">✗ Не зовсім чесно</button>
+      </div>
+    </div>
+    <button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="savePost()">Зберегти пост</button>
+    <div class="fb" id="post-fb"></div>
+  </div>
+
+  <!-- FINAL CODE -->
+  <div id="code4-box" style="display:none">
+    <div class="code-box">
+      <div class="code-label">🔑 Твій код Дня 4:</div>
+      <div class="code-value" id="code4-val">—</div>
+      <button class="code-copy" onclick="copyCode('code4-val')">Скопіювати</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-outline" onclick="goTo(0)">← Головна</button>
+    <button class="btn btn-green" onclick="finishDay(4)">🏆 Завершити модуль →</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const state = {
+  days: {1:{},2:{},3:{},4:{}},
+  completed: {1:false,2:false,3:false,4:false},
+  codes: {1:'',2:'',3:'',4:''}
+};
+
+// результат задания: 'correct' | 'wrong' | 'skip'
+function setResult(day, task, result) {
+  state.days[day][task] = result;
+  updateTrackers();
+}
+function getResult(day, task) {
+  return state.days[day][task] || 'skip';
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function goTo(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress() {
+  const done = Object.values(state.completed).filter(Boolean).length;
+  document.getElementById('progfill').style.width = (done/4*100)+'%';
+  const dots = document.getElementById('daydots');
+  dots.innerHTML = '';
+  for(let i=1;i<=4;i++){
+    const d = document.createElement('div');
+    d.className = 'day-dot' + (state.completed[i]?' done':'');
+    dots.appendChild(d);
+  }
+}
+
+function updateTrackers() {
+  for(let day=1;day<=4;day++) {
+    const tt = document.getElementById('tt'+day);
+    if(!tt) continue;
+    const tasks = getDayTasks(day);
+    tt.innerHTML = '';
+    tasks.forEach((t,i) => {
+      const r = getResult(day, t.id);
+      const d = document.createElement('div');
+      d.className = 'tt-dot ' + r;
+      d.title = t.label;
+      d.textContent = (i+1);
+      tt.appendChild(d);
+    });
+  }
+}
+
+function getDayTasks(day) {
+  const map = {
+    1: [
+      {id:'t11',label:'1.1 ★ Яка частина з\'їдена?'},
+      {id:'t12',label:'1.2 ★ З\'єднай об\'єкт і число'},
+      {id:'t13',label:'1.3 ★ Що більше?'},
+      {id:'t14',label:'1.4 ★★ Запам\'ятай'},
+      {id:'t15',label:'1.5 ★★ Зафарбуй сітку'},
+      {id:'t16',label:'1.6 ★★★ Три форми + Проміле'},
+    ],
+    2: [
+      {id:'t21',label:'2.1 ★ Десяткова→%'},
+      {id:'t22',label:'2.2 ★ %→Десяткова'},
+      {id:'t23',label:'2.3 ★ Знайди пару'},
+      {id:'t24',label:'2.4 ★★ >100% і <1%'},
+      {id:'t25',label:'2.5 ★★ Помилка Тіма'},
+      {id:'t26',label:'2.6 ★★★ Життєві задачі'},
+      {id:'t27',label:'2.7 ★★★ Відсоток >100'},
+    ],
+    3: [
+      {id:'t31',label:'3.1 ★ Дріб→Десяткова'},
+      {id:'t32',label:'3.2 ★ %→Дріб'},
+      {id:'t33',label:'3.3 ★ Кругова таблиця'},
+      {id:'t34',label:'3.4 ★★ Складні дроби'},
+      {id:'t35',label:'3.5 ★★ Дроби з дес. %'},
+      {id:'t36',label:'3.6 ★★★ По порядку'},
+      {id:'t37',label:'3.7 ★★★ Періодичні'},
+    ],
+    4: [
+      {id:'t4w',label:'Розминка'},
+      {id:'t41',label:'4.1 ★ Зайве'},
+      {id:'t42',label:'4.2 ★ По зростанню'},
+      {id:'t43',label:'4.3 ★ Клас'},
+      {id:'t44',label:'4.4 ★★ Таблиця мікс'},
+      {id:'t45',label:'4.5 ★★ Реклама'},
+      {id:'t46',label:'4.6 ★★★ Проміле'},
+      {id:'t47',label:'4.7 ★★★ Розслідування'},
+    ]
+  };
+  return map[day]||[];
+}
+
+// ═══════════════════════════════════════════════
+// CODE GENERATOR
+// ═══════════════════════════════════════════════
+function generateCode(day) {
+  const tasks = getDayTasks(day);
+  const letters = 'ABCDEFGHIJKLMNOP';
+  let correct = 0, total = tasks.length;
+  let detail = '';
+  tasks.forEach((t, i) => {
+    const r = getResult(day, t.id);
+    if(r === 'correct') correct++;
+    const sym = r==='correct'?'✓':r==='wrong'?'✗':'0';
+    detail += letters[i] + sym;
+  });
+  return `D${day}-${correct}/${total}-${detail}`;
+}
+
+function finishDay(day) {
+  // Mark skipped tasks
+  getDayTasks(day).forEach(t => {
+    if(!state.days[day][t.id]) {
+      state.days[day][t.id] = 'skip';
+    }
+  });
+  const code = generateCode(day);
+  state.codes[day] = code;
+  state.completed[day] = true;
+
+  const codeEl = document.getElementById('code'+day+'-val');
+  const codeBox = document.getElementById('code'+day+'-box');
+  if(codeEl) codeEl.textContent = code;
+  if(codeBox) codeBox.style.display = 'block';
+
+  updateProgress();
+  buildDayGrid();
+
+  // Check if all done
+  if(Object.values(state.completed).every(Boolean)) {
+    const moduleCode = Object.values(state.codes).join(' | ');
+    document.getElementById('module-code').textContent = moduleCode;
+    document.getElementById('all-done-box').style.display = 'block';
+  }
+
+  updateTrackers();
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+function copyCode(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Скопійовано!';
+    setTimeout(() => btn.textContent = 'Скопіювати', 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// DAY GRID (HOME)
+// ═══════════════════════════════════════════════
+const dayInfo = {
+  1: {title:'Візуальне розуміння %', sub:'Впізнаємо % на реальних об\'єктах'},
+  2: {title:'Десяткова ↔ Відсоток', sub:'Переводимо в обидва боки'},
+  3: {title:'Дріб ↔ % ↔ Десяткова', sub:'Замикаємо коло трьох форм'},
+  4: {title:'Все разом + Життя', sub:'Мікс, критичне мислення, блог'},
+};
+
+function buildDayGrid() {
+  const grid = document.getElementById('daygrid');
+  grid.innerHTML = '';
+  for(let d=1;d<=4;d++) {
+    const done = state.completed[d];
+    const prev = d===1 || state.completed[d-1];
+    const div = document.createElement('div');
+    div.className = 'day-card' + (done?' completed':'') + (!prev?' locked':'');
+    div.innerHTML = `
+      <div class="dc-num">День ${d}</div>
+      <div class="dc-title">${dayInfo[d].title}</div>
+      <div class="dc-sub">${dayInfo[d].sub}</div>
+      <span class="dc-status ${done?'done':prev?'todo':'locked'}">${done?'✓ Виконано':prev?'▶ Почати':'🔒 Заблоковано'}</span>
+    `;
+    if(prev) div.onclick = () => goTo(d);
+    grid.appendChild(div);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ═══ DAY 1 TASKS ═══════════════════════════════
+// ═══════════════════════════════════════════════
+
+// TASK 1.1 — object → percent
+const t11data = [
+  {q:'🍕 Піцу розрізали на 4 рівних шматки. З\'їдено 3 шматки. Яка частина з\'їдена?', ans:'75%', opts:['25%','50%','75%','80%','100%']},
+  {q:'🍫 Шоколадка з 10 часточок. З\'їдено 4 часточки. Яка частина з\'їдена?', ans:'40%', opts:['20%','40%','50%','60%','80%']},
+  {q:'🍩 Коробка пончиків — 8 штук. Залишилося 2. Яка частина залишилася?', ans:'25%', opts:['20%','25%','75%','80%','40%']},
+  {q:'🎂 Торт розрізали на 5 рівних шматків. З\'їдено 2. Яка частина залишилася?', ans:'60%', opts:['40%','50%','60%','80%','20%']},
+];
+
+function buildT11() {
+  const w = document.getElementById('t11-items');
+  t11data.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--gray-m);';
+    if(i===t11data.length-1) div.style.borderBottom = 'none';
+    div.innerHTML = `<p class="task-q">${t.q}</p><div class="opts" id="t11opts${i}">${t.opts.map(o=>`<button class="obtn" onclick="pickT11(${i},this,'${o}')">${o}</button>`).join('')}</div><div style="font-size:13px;font-weight:700;margin-top:8px;" id="t11f${i}"></div>`;
+    w.appendChild(div);
+  });
+}
+
+let t11sel = {};
+function pickT11(i, btn, val) {
+  document.getElementById('t11opts'+i).querySelectorAll('button').forEach(b=>{b.classList.remove('ok','no','selected');});
+  t11sel[i] = val;
+  btn.classList.add('selected');
+}
+
+function checkT11() {
+  let ok = 0;
+  t11data.forEach((_,i) => {
+    const sel = t11sel[i];
+    const fb = document.getElementById('t11f'+i);
+    const btns = document.getElementById('t11opts'+i).querySelectorAll('button');
+    btns.forEach(b => b.classList.remove('ok','no','selected'));
+    if(!sel){fb.textContent='';return;}
+    const correct = sel===t11data[i].ans;
+    // highlight selected button
+    btns.forEach(b => { if(b.textContent===sel) b.classList.add(correct?'ok':'no'); });
+    if(correct){ok++;fb.textContent='✓ Правильно!';fb.style.color='var(--green)';}
+    else{fb.textContent='✗ Правильно: '+t11data[i].ans;fb.style.color='var(--red)';}
+  });
+  const total = t11data.length;
+  const answered = Object.keys(t11sel).length;
+  const fb = document.getElementById('t11-fb');
+  fb.className = 'fb ' + (ok===total?'ok':ok>0?'info':'no');
+  fb.textContent = `Правильно: ${ok} з ${total}${answered<total?' (не всі відповіді заповнені)':''}`;
+  setResult(1,'t11', ok===total?'correct':answered>0?'wrong':'skip');
+}
+
+function resetT11() {
+  t11sel={};
+  document.querySelectorAll('[id^="t11opts"] button').forEach(b=>b.classList.remove('ok','no','selected'));
+  document.querySelectorAll('[id^="t11f"]').forEach(el=>el.textContent='');
+  document.getElementById('t11-fb').textContent='';
+  document.getElementById('t11-fb').className='fb';
+}
+
+// TASK 1.2 — match object ↔ percent/fraction/decimal
+function buildT12() {
+  const w = document.getElementById('t12-wrap');
+  const qs = [
+    {obj:'🥜 Батончик мюслі зламано на 4 частини, з\'їдена 1', pct:'А',frac:'А',dec:'А'},
+    {obj:'🍬 Коробка з 20 цукерок — залишилося 5', pct:'А',frac:'А',dec:'А'},
+    {obj:'🍉 Кавун розрізано на 8 частин, на столі 6', pct:'Б',frac:'Б',dec:'Б'},
+    {obj:'💊 Упаковка 100 таблеток — використано 37', pct:'В',frac:'В',dec:'В'},
+  ];
+  const pctOpts = [{l:'А',v:'25%'},{l:'Б',v:'75%'},{l:'В',v:'37%'},{l:'Г',v:'50%'},{l:'Д',v:'20%'}];
+  const fracOpts = [{l:'А',v:'1/4'},{l:'Б',v:'3/4'},{l:'В',v:'37/100'},{l:'Г',v:'1/2'},{l:'Д',v:'1/5'}];
+  const decOpts = [{l:'А',v:'0,25'},{l:'Б',v:'0,75'},{l:'В',v:'0,37'},{l:'Г',v:'0,5'},{l:'Д',v:'0,2'}];
+
+  const answers = {0:{pct:'А',frac:'А',dec:'А'},1:{pct:'А',frac:'А',dec:'А'},2:{pct:'Б',frac:'Б',dec:'Б'},3:{pct:'В',frac:'В',dec:'В'}};
+
+  let html = '<table class="fill-table"><thead><tr><th>Об\'єкт</th><th>%</th><th>Дріб</th><th>Дес.</th></tr></thead><tbody>';
+  qs.forEach((q,i) => {
+    const mkSel = (id, opts) => `<select class="msel" id="${id}">${opts.map(o=>`<option value="${o.l}">${o.v}</option>`).join('')}</select>`;
+    html += `<tr><td style="font-size:13px">${q.obj}</td><td>${mkSel('t12p'+i,pctOpts)}</td><td>${mkSel('t12f'+i,fracOpts)}</td><td>${mkSel('t12d'+i,decOpts)}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  html += `<div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT12()">Перевірити</button><button class="btn btn-outline btn-sm" onclick="resetT12()">Скинути</button></div>`;
+  w.innerHTML = html;
+
+  // store answers for check
+  w.dataset.answers = JSON.stringify(answers);
+}
+
+function checkT12() {
+  const answers = JSON.parse(document.getElementById('t12-wrap').dataset.answers);
+  let ok = 0, total = 12;
+  [0,1,2,3].forEach(i => {
+    const pOk = document.getElementById('t12p'+i).value === answers[i].pct;
+    const fOk = document.getElementById('t12f'+i).value === answers[i].frac;
+    const dOk = document.getElementById('t12d'+i).value === answers[i].dec;
+    [document.getElementById('t12p'+i),document.getElementById('t12f'+i),document.getElementById('t12d'+i)].forEach((el,j)=>{
+      el.className = 'msel ' + ([pOk,fOk,dOk][j]?'ok':'no');
+    });
+    if(pOk) ok++;
+    if(fOk) ok++;
+    if(dOk) ok++;
+  });
+  const fb = document.getElementById('t12-fb');
+  fb.className='fb '+(ok===total?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${total}`;
+  setResult(1,'t12',ok===total?'correct':ok>0?'wrong':'skip');
+}
+
+function resetT12() {
+  document.querySelectorAll('[id^="t12p"],[id^="t12f"],[id^="t12d"]').forEach(el=>{el.className='msel';el.selectedIndex=0;});
+  document.getElementById('t12-fb').className='fb';
+  document.getElementById('t12-fb').textContent='';
+}
+
+// TASK 1.3 — comparison
+const t13data = [
+  {q:'25% або 1/3?', opts:['Перше (25%)','Друге (1/3)','Рівні'], ans:'Друге (1/3)', exp:'1/3 ≈ 33% > 25%'},
+  {q:'50% або 0,4?', opts:['Перше (50%)','Друге (0,4)','Рівні'], ans:'Перше (50%)', exp:'0,4 = 40% < 50%'},
+  {q:'75% або 3/4?', opts:['Перше (75%)','Друге (3/4)','Рівні'], ans:'Рівні', exp:'3/4 = 75% — рівні!'},
+  {q:'10% або 0,2?', opts:['Перше (10%)','Друге (0,2)','Рівні'], ans:'Друге (0,2)', exp:'0,2 = 20% > 10%'},
+  {q:'1/5 або 15%?', opts:['Перше (1/5)','Друге (15%)','Рівні'], ans:'Перше (1/5)', exp:'1/5 = 20% > 15%'},
+];
+let t13sel = {};
+function buildT13() {
+  const w = document.getElementById('t13-items');
+  t13data.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:12px;';
+    div.innerHTML = `<p style="font-size:15px;font-weight:600;margin-bottom:8px;">${i+1}. ${t.q}</p><div class="opts" id="t13opts${i}">${t.opts.map(o=>`<button class="obtn" onclick="pickT13(${i},this,'${o}')">${o}</button>`).join('')}</div><div style="font-size:12px;color:var(--gray);margin-top:4px;font-style:italic;" id="t13exp${i}"></div>`;
+    w.appendChild(div);
+  });
+}
+function pickT13(i,btn,val){
+  document.getElementById('t13opts'+i).querySelectorAll('button').forEach(b=>b.classList.remove('ok','no','selected'));
+  t13sel[i]=val;
+  btn.classList.add('selected');
+  document.getElementById('t13exp'+i).textContent='';
+}
+function checkT13(){
+  let ok=0;
+  t13data.forEach((t,i)=>{
+    const sel=t13sel[i];
+    const btns=document.getElementById('t13opts'+i).querySelectorAll('button');
+    btns.forEach(b=>b.classList.remove('ok','no','selected'));
+    if(sel){
+      const correct=sel===t.ans;
+      btns.forEach(b=>{if(b.textContent===sel)b.classList.add(correct?'ok':'no');});
+      document.getElementById('t13exp'+i).textContent=t.exp;
+      if(correct)ok++;
+    }
+  });
+  const fb=document.getElementById('t13-fb');
+  fb.className='fb '+(ok===t13data.length?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${t13data.length}`;
+  setResult(1,'t13',ok===t13data.length?'correct':Object.keys(t13sel).length>0?'wrong':'skip');
+}
+function resetT13(){
+  t13sel={};
+  document.querySelectorAll('[id^="t13opts"] button').forEach(b=>b.classList.remove('ok','no','selected'));
+  document.querySelectorAll('[id^="t13exp"]').forEach(el=>el.textContent='');
+  document.getElementById('t13-fb').className='fb';
+  document.getElementById('t13-fb').textContent='';
+}
+
+// TASK 1.4 — flashcard table
+const t14data = [
+  {frac:'1/2', dec:'0,5', pct:'50%'},
+  {frac:'1/4', dec:'0,25', pct:'25%'},
+  {frac:'3/4', dec:'0,75', pct:'75%'},
+  {frac:'1/10', dec:'0,1', pct:'10%'},
+  {frac:'1/5', dec:'0,2', pct:'20%'},
+  {frac:'1/3', dec:'0,(3)', pct:'33,(3)%'},
+  {frac:'2/3', dec:'0,(6)', pct:'66,(6)%'},
+  {frac:'1/8', dec:'0,125', pct:'12,5%'},
+  {frac:'3/8', dec:'0,375', pct:'37,5%'},
+];
+function buildT14() {
+  let html = '<table class="fill-table"><thead><tr><th>Дріб</th><th>Десяткова</th><th>Відсоток</th></tr></thead><tbody>';
+  t14data.forEach((r,i) => {
+    html += `<tr><td style="font-weight:700;font-family:var(--font)">${r.frac}</td><td><input class="fill-input" id="t14d${i}" placeholder="?" style="width:100px"></td><td><input class="fill-input" id="t14p${i}" placeholder="?" style="width:100px"></td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('t14-table').innerHTML = html;
+}
+function checkT14(){
+  let ok=0, total=t14data.length*2;
+  t14data.forEach((r,i)=>{
+    const dEl=document.getElementById('t14d'+i), pEl=document.getElementById('t14p'+i);
+    const dOk=norm(dEl.value)===norm(r.dec);
+    const pOk=norm(pEl.value)===norm(r.pct);
+    dEl.className='fill-input '+(dOk?'ok':dEl.value?'no':'');
+    pEl.className='fill-input '+(pOk?'ok':pEl.value?'no':'');
+    if(dOk)ok++;if(pOk)ok++;
+  });
+  const fb=document.getElementById('t14-fb');
+  fb.className='fb '+(ok===total?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${total}${ok<total?' — після перевірки можна виправити':' — чудово!'}`;
+  setResult(1,'t14',ok===total?'correct':ok>0?'wrong':'skip');
+}
+function resetT14(){
+  t14data.forEach((_,i)=>{
+    ['t14d','t14p'].forEach(p=>{const el=document.getElementById(p+i);if(el){el.value='';el.className='fill-input';}});
+  });
+  document.getElementById('t14-fb').className='fb';
+  document.getElementById('t14-fb').textContent='';
+}
+
+// TASK 1.5 — grid 10x10
+const t15tasks = [
+  {id:'g0', target:25, q:'Зафарбуй рівно 25% клітинок — будь-яким узором.'},
+  {id:'g1', target:30, q:'Зафарбуй так, щоб залишилося 70% білих.'},
+  {id:'g2', target:20, q:'Зафарбуй так, щоб залишилося 80% білих.'},
+  {id:'g3', target:36, q:'Зафарбуй рамку по краю — порахуй скільки % вийшло. (Підказка: рамка = крайні клітинки)'},
+];
+function buildT15(){
+  const w = document.getElementById('t15-grids');
+  t15tasks.forEach(t => {
+    const div = document.createElement('div');
+    div.style.cssText='margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--gray-m);';
+    div.innerHTML=`<p class="task-q">${t.q}</p><div class="grid10" id="gr_${t.id}"></div><div class="gstat" id="st_${t.id}">Зафарбовано: 0 з 100 (0%)</div><div class="action-row"><button class="btn btn-primary btn-sm" onclick="chkGrid('${t.id}',${t.target})">Перевірити</button><button class="btn btn-outline btn-sm" onclick="clrGrid('${t.id}')">Очистити</button></div><div class="fb" id="gf_${t.id}"></div>`;
+    w.appendChild(div);
+    const g=document.getElementById('gr_'+t.id);
+    for(let i=0;i<100;i++){const c=document.createElement('div');c.className='gc';c.onclick=()=>{c.classList.toggle('blue');updStat(t.id);};g.appendChild(c);}
+  });
+}
+function updStat(id){const n=document.getElementById('gr_'+id).querySelectorAll('.blue').length;document.getElementById('st_'+id).textContent=`Зафарбовано: ${n} з 100 (${n}%)`;}
+function chkGrid(id,target){
+  const n=document.getElementById('gr_'+id).querySelectorAll('.blue').length;
+  const fb=document.getElementById('gf_'+id);
+  if(n===target){fb.textContent=`✓ Правильно! ${target}% зафарбовано.`;fb.className='fb ok';}
+  else{fb.textContent=`✗ Зараз ${n}% — потрібно ${target}%. Спробуй ще.`;fb.className='fb no';}
+  setResult(1,'t15',n===target?'correct':'wrong');
+}
+function clrGrid(id){document.getElementById('gr_'+id).querySelectorAll('.gc').forEach(c=>c.classList.remove('blue'));document.getElementById('st_'+id).textContent='Зафарбовано: 0 з 100 (0%)';document.getElementById('gf_'+id).textContent='';}
+
+// TASK 1.6 — three forms + promille
+function buildT16(){
+  const w=document.getElementById('t16-wrap');
+  w.innerHTML=`
+  <div class="theory"><div class="theory-title">Три форми одного числа</div>
+  <p>Подивись на об'єкт і запиши всі три форми числа.</p></div>
+  <p style="font-size:14px;margin-bottom:8px"><strong>Об'єкт 1:</strong> 🥚 Коробка яєць на 12 штук. Залишилося 9.</p>
+  <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+    <div><div class="blog-label">Дріб</div><input class="fill-input" id="t16f1" placeholder="9/12=?" style="width:120px"></div>
+    <div><div class="blog-label">Десяткова</div><input class="fill-input" id="t16d1" placeholder="0,?" style="width:100px"></div>
+    <div><div class="blog-label">Відсоток</div><input class="fill-input" id="t16p1" placeholder="?%" style="width:100px"></div>
+  </div>
+  <p style="font-size:14px;margin-bottom:8px"><strong>Об'єкт 2:</strong> 🔋 Батарея телефону на екрані показує 3/8.</p>
+  <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <div><div class="blog-label">Десяткова</div><input class="fill-input" id="t16d2" placeholder="0,?" style="width:100px"></div>
+    <div><div class="blog-label">Відсоток</div><input class="fill-input" id="t16p2" placeholder="?%" style="width:100px"></div>
+  </div>
+  <div class="theory" style="border-color:var(--purple)"><div class="theory-title" style="color:var(--purple)">🔬 Проміле (‰)</div>
+  <p>1 проміле (1‰) = 1/1000 = 0,001. Солоність Чорного моря ≈ 18‰.</p></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+    <div><div class="blog-label">5‰ = ?%</div><input class="fill-input" id="t16pm1" placeholder="?" style="width:100%"></div>
+    <div><div class="blog-label">2% = ?‰</div><input class="fill-input" id="t16pm2" placeholder="?" style="width:100%"></div>
+    <div><div class="blog-label">35‰ = ?%</div><input class="fill-input" id="t16pm3" placeholder="?" style="width:100%"></div>
+    <div><div class="blog-label">Що більше: 1% чи 5‰?</div><input class="fill-input" id="t16pm4" placeholder="?" style="width:100%"></div>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-primary btn-sm" onclick="checkT16()">Перевірити</button>
+    <button class="btn btn-outline btn-sm" onclick="resetT16()">Скинути</button>
+  </div>
+  <div class="fb" id="t16-fb"></div>`;
+}
+function checkT16(){
+  const checks=[
+    {id:'t16f1',ans:'3/4'},
+    {id:'t16d1',ans:'0,75'},
+    {id:'t16p1',ans:'75%'},
+    {id:'t16d2',ans:'0,375'},
+    {id:'t16p2',ans:'37,5%'},
+    {id:'t16pm1',ans:'0,5%'},
+    {id:'t16pm2',ans:'20'},
+    {id:'t16pm3',ans:'3,5%'},
+    {id:'t16pm4',ans:'1%'},
+  ];
+  let ok=0;
+  checks.forEach(c=>{
+    const el=document.getElementById(c.id);
+    if(!el)return;
+    const correct=norm(el.value)===norm(c.ans);
+    el.className='fill-input '+(correct?'ok':el.value?'no':'');
+    if(correct)ok++;
+  });
+  const fb=document.getElementById('t16-fb');
+  fb.className='fb '+(ok===checks.length?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${checks.length}`;
+  setResult(1,'t16',ok===checks.length?'correct':ok>0?'wrong':'skip');
+}
+function resetT16(){
+  ['t16f1','t16d1','t16p1','t16d2','t16p2','t16pm1','t16pm2','t16pm3','t16pm4'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.className='fill-input';}});
+  document.getElementById('t16-fb').className='fb';document.getElementById('t16-fb').textContent='';
+}
+
+function checkBlog1(){
+  const total=parseFloat(document.getElementById('blog1-total').value);
+  const part=parseFloat(document.getElementById('blog1-part').value);
+  if(!total||!part){document.getElementById('blog1-fb').className='fb no';document.getElementById('blog1-fb').textContent='Введи "Всього" і "Частину"';return;}
+  const pct=Math.round(part/total*1000)/10;
+  const dec=Math.round(part/total*1000)/1000;
+  const fb=document.getElementById('blog1-fb');
+  fb.className='fb ok';
+  fb.textContent=`✓ Правильно: ${part}/${total} = ${dec} = ${pct}%. Перевір свої відповіді!`;
+}
+
+// ═══════════════════════════════════════════════
+// ═══ DAY 2 TASKS ═══════════════════════════════
+// ═══════════════════════════════════════════════
+
+// Fill tasks helper
+const fillTasks = {
+  t21: {
+    items:[
+      {q:'а) 0,32 = ____%',id:'t21a',ans:'32%'},
+      {q:'б) 0,07 = ____%',id:'t21b',ans:'7%'},
+      {q:'в) 0,5 = ____%',id:'t21c',ans:'50%'},
+      {q:'г) 0,90 = ____%',id:'t21d',ans:'90%'},
+      {q:'д) 0,01 = ____%',id:'t21e',ans:'1%'},
+      {q:'е) 0,25 = ____%',id:'t21f',ans:'25%'},
+    ]
+  },
+  t22: {
+    items:[
+      {q:'а) 45% = ___',id:'t22a',ans:'0,45'},
+      {q:'б) 80% = ___',id:'t22b',ans:'0,8'},
+      {q:'в) 6% = ___',id:'t22c',ans:'0,06'},
+      {q:'г) 100% = ___',id:'t22d',ans:'1'},
+      {q:'д) 30% = ___',id:'t22e',ans:'0,3'},
+      {q:'е) 15% = ___',id:'t22f',ans:'0,15'},
+    ]
+  },
+  t24: {
+    items:[
+      {q:'а) 1,5 = ____%',id:'t24a',ans:'150%'},
+      {q:'б) 2,75 = ____%',id:'t24b',ans:'275%'},
+      {q:'в) 250% = ___',id:'t24c',ans:'2,5'},
+      {q:'г) 175% = ___',id:'t24d',ans:'1,75'},
+      {q:'д) 0,005 = ____%',id:'t24e',ans:'0,5%'},
+      {q:'е) 0,13% = ___',id:'t24f',ans:'0,0013'},
+      {q:'ж) 0,075 = ____%',id:'t24g',ans:'7,5%'},
+      {q:'з) 0,075% = ___',id:'t24h',ans:'0,00075'},
+    ]
+  },
+  t31: {
+    items:[
+      {q:'а) 5/6 = ___',id:'t31a',ans:'0,8(3)'},
+      {q:'б) 3/8 = ___',id:'t31b',ans:'0,375'},
+      {q:'в) 1/12 = ___',id:'t31c',ans:'0,08(3)'},
+      {q:'г) 5/8 = ___',id:'t31d',ans:'0,625'},
+      {q:'д) 1/4 = ___',id:'t31e',ans:'0,25'},
+      {q:'е) 7/20 = ___',id:'t31f',ans:'0,35'},
+    ]
+  },
+  t34: {
+    items:[
+      {q:'а) 3/8 = ____%',id:'t34a',ans:'37,5%'},
+      {q:'б) 12/25 = ____%',id:'t34b',ans:'48%'},
+      {q:'в) 7/11 ≈ ____% (округли до 0,01%)',id:'t34c',ans:'63,64%'},
+      {q:'г) 5/6 = ____%',id:'t34d',ans:'83,(3)%'},
+      {q:'д) 9/50 = ____%',id:'t34e',ans:'18%'},
+      {q:'е) 7/12 = ____%',id:'t34f',ans:'58,(3)%'},
+    ]
+  },
+  t35: {
+    items:[
+      {q:'а) 0,5% → дріб = ___',id:'t35a',ans:'1/200'},
+      {q:'б) 12,5% → дріб = ___',id:'t35b',ans:'1/8'},
+      {q:'в) 0,03% → дріб = ___',id:'t35c',ans:'3/10000'},
+      {q:'г) 5,2% → дріб = ___',id:'t35d',ans:'13/250'},
+    ]
+  },
+};
+
+function buildFillTask(tid) {
+  const data = fillTasks[tid];
+  if(!data) return;
+  const containerId = 't'+tid.slice(1)+'-items';
+  const w = document.getElementById(containerId);
+  if(!w) return;
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  data.items.forEach(item => {
+    html += `<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;min-width:160px">${item.q.replace('____','')}</span><input class="fill-input" id="${item.id}" placeholder="?" style="width:120px"></div>`;
+  });
+  html += '</div>';
+  if(!w.innerHTML) w.innerHTML = html;
+}
+
+function buildAllFillTasks() {
+  // Day 2
+  buildSimpleFill('t21');
+  buildSimpleFill('t22');
+  buildSimpleFill('t24');
+  // Day 3
+  buildSimpleFill('t31');
+  buildSimpleFill('t34');
+  buildSimpleFill('t35');
+}
+
+function buildSimpleFill(tid) {
+  const data = fillTasks[tid];
+  if(!data) return;
+  const w = document.getElementById(tid+'-items');
+  if(!w) return;
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">';
+  data.items.forEach(item => {
+    html += `<div><label style="font-size:14px;display:block;margin-bottom:4px">${item.q}</label><input class="fill-input" id="${item.id}" placeholder="?"></div>`;
+  });
+  html += '</div>';
+  w.innerHTML = html;
+}
+
+function checkFill(tid) {
+  const data = fillTasks[tid];
+  if(!data) return;
+  let ok=0, total=data.items.length, answered=0;
+  data.items.forEach(item => {
+    const el = document.getElementById(item.id);
+    if(!el) return;
+    if(el.value) answered++;
+    const correct = norm(el.value)===norm(item.ans);
+    el.className = 'fill-input '+(el.value?(correct?'ok':'no'):'');
+    if(correct) ok++;
+  });
+  const fb = document.getElementById(tid+'-fb');
+  if(!fb) return;
+  fb.className='fb '+(ok===total?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${total}`;
+
+  // map tid to day
+  const dayMap = {t21:2,t22:2,t24:2,t31:3,t34:3,t35:3};
+  const taskMap = {t21:'t21',t22:'t22',t24:'t24',t31:'t31',t34:'t34',t35:'t35'};
+  const day = dayMap[tid];
+  if(day) setResult(day, taskMap[tid], ok===total?'correct':answered>0?'wrong':'skip');
+}
+
+function resetFill(tid) {
+  const data = fillTasks[tid];
+  if(!data) return;
+  data.items.forEach(item => {
+    const el = document.getElementById(item.id);
+    if(el){el.value='';el.className='fill-input';}
+  });
+  const fb = document.getElementById(tid+'-fb');
+  if(fb){fb.className='fb';fb.textContent='';}
+}
+
+// TASK 2.3 — match decimal to percent
+function buildT23(){
+  const qs=[
+    {v:'0,37',ans:'Д'},
+    {v:'0,08',ans:'З'},
+    {v:'3,8',ans:'Ж'},
+    {v:'0,315',ans:'А'},
+  ];
+  const as=[
+    {l:'А',v:'31,5%'},{l:'Б',v:'3,8%'},{l:'В',v:'32%'},{l:'Г',v:'3,2%'},
+    {l:'Д',v:'37%'},{l:'Е',v:'0,37%'},{l:'Ж',v:'380%'},{l:'З',v:'8%'},
+    {l:'І',v:'0,8%'},{l:'К',v:'0,08%'},
+  ];
+  buildMatchTask('t23-wrap','t23',qs,as,2);
+}
+
+// TASK 2.5 — find Tim's errors
+const t25data = [
+  {q:'15,5% = 1,55', correct:true},
+  {q:'0,37 = 3,7%', correct:false, fix:'0,37 = 37%'},
+  {q:'200% = 2', correct:true},
+  {q:'0,006 = 0,6%', correct:true},
+  {q:'1,35% = 0,135', correct:false, fix:'1,35% = 0,0135'},
+  {q:'0,8% = 0,8', correct:false, fix:'0,8% = 0,008'},
+];
+let t25sel={};
+function buildT25(){
+  const w=document.getElementById('t25-items');
+  t25data.forEach((t,i)=>{
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+    div.innerHTML=`<span style="font-size:15px;font-weight:600;min-width:200px;font-family:var(--font)">${t.q}</span>
+    <button class="obtn" id="t25y${i}" onclick="pickT25(${i},true)">✓ Вірно</button>
+    <button class="obtn" id="t25n${i}" onclick="pickT25(${i},false)">✗ Невірно</button>
+    <span style="font-size:12px;color:var(--gray);font-style:italic" id="t25fix${i}"></span>`;
+    w.appendChild(div);
+  });
+}
+function pickT25(i,val){
+  document.getElementById('t25y'+i).classList.remove('ok','no','selected');
+  document.getElementById('t25n'+i).classList.remove('ok','no','selected');
+  t25sel[i]=val;
+  document.getElementById(val?'t25y'+i:'t25n'+i).classList.add('selected');
+}
+function checkT25(){
+  let ok=0;
+  t25data.forEach((t,i)=>{
+    const sel=t25sel[i];
+    const yBtn=document.getElementById('t25y'+i), nBtn=document.getElementById('t25n'+i);
+    yBtn.classList.remove('ok','no','selected');
+    nBtn.classList.remove('ok','no','selected');
+    if(sel===undefined)return;
+    const correct=sel===t.correct;
+    (sel?yBtn:nBtn).classList.add(correct?'ok':'no');
+    if(correct)ok++;
+    if(!t.correct&&sel===false) document.getElementById('t25fix'+i).textContent='Правильно: '+t.fix;
+    else document.getElementById('t25fix'+i).textContent='';
+  });
+  const fb=document.getElementById('t25-fb');
+  fb.className='fb '+(ok===t25data.length?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${t25data.length}`;
+  setResult(2,'t25',ok===t25data.length?'correct':Object.keys(t25sel).length>0?'wrong':'skip');
+}
+function resetT25(){
+  t25sel={};
+  t25data.forEach((_,i)=>{
+    ['t25y','t25n'].forEach(p=>{const el=document.getElementById(p+i);if(el)el.classList.remove('ok','no');});
+    const fix=document.getElementById('t25fix'+i);if(fix)fix.textContent='';
+  });
+  document.getElementById('t25-fb').className='fb';document.getElementById('t25-fb').textContent='';
+}
+
+// TASKS 2.6, 2.7 — text/bonus
+function buildT26(){
+  document.getElementById('t26-wrap').innerHTML=`
+  <div class="chars"><div class="bubble sof"><div class="bname sof">Софія</div>Тепер застосовуємо в житті. Числа ті самі — але спочатку треба зрозуміти що саме переводити.</div></div>
+  <div style="margin-bottom:14px"><p class="task-q">🛍️ <strong>Задача 1:</strong> В магазині на ціннику написано: знижка 0,3. Продавець каже: «Знижка тридцять відсотків». Він правий?</p>
+  <div class="opts"><button class="obtn" onclick="ans26(this,'Так, 0,3=30%')">Так</button><button class="obtn" onclick="ans26(this,'ні')">Ні</button></div></div>
+  <div style="margin-bottom:14px"><p class="task-q">🔋 <strong>Задача 2:</strong> Телефон показує заряд 0,15. Скільки відсотків заряду залишилося? Чи вистачить на 2-годинний фільм, якщо повний заряд вистачає на 10 годин?</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <div><div class="blog-label">% заряду</div><input class="fill-input" id="t26a" placeholder="?%" style="width:80px"></div>
+    <div><div class="blog-label">Годин залишилося</div><input class="fill-input" id="t26b" placeholder="?" style="width:80px"></div>
+    <div><div class="blog-label">Вистачить на фільм?</div>
+    <select class="msel" id="t26c"><option value="">—</option><option>Так</option><option>Ні</option></select></div>
+  </div></div>
+  <div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT26()">Перевірити</button></div>
+  <div class="fb" id="t26-fb"></div>`;
+}
+let t26ans1=null;
+function ans26(btn,val){document.querySelectorAll('#t26-wrap .obtn').forEach(b=>b.classList.remove('ok','no'));btn.classList.add(val.includes('30%')?'ok':'no');t26ans1=val;}
+function checkT26(){
+  let ok=0;
+  if(t26ans1&&t26ans1.includes('30%'))ok++;
+  const aEl=document.getElementById('t26a'),bEl=document.getElementById('t26b'),cEl=document.getElementById('t26c');
+  if(norm(aEl.value)===norm('15%')){ok++;aEl.className='fill-input ok';}else if(aEl.value)aEl.className='fill-input no';
+  if(norm(bEl.value)==='1,5'||bEl.value==='1.5'){ok++;bEl.className='fill-input ok';}else if(bEl.value)bEl.className='fill-input no';
+  if(cEl.value==='Ні')ok++;
+  const fb=document.getElementById('t26-fb');
+  fb.className='fb '+(ok>=3?'ok':'info');
+  fb.textContent=`Правильно: ${ok} з 4. Задача 2: 0,15=15%, 15%×10год=1,5год — на фільм не вистачить.`;
+  setResult(2,'t26',ok>=3?'correct':ok>0?'wrong':'skip');
+}
+
+function buildT27(){
+  document.getElementById('t27-wrap').innerHTML=`
+  <div class="theory"><div class="theory-title">Коли відсоток > 100</div><p>Тім важив 40 кг. Тепер важить 50 кг. Новий вік — це скільки % від старого?</p><p>50 ÷ 40 × 100 = <strong>125%</strong> — більше 100%, бо зараз більше ніж було.</p></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+    <div><div class="blog-label">а) Було 80, стало 120. Нове = ___% від старого</div><input class="fill-input" id="t27a" placeholder="?%"></div>
+    <div><div class="blog-label">б) Було 50, стало 175. Нове = ___% від старого</div><input class="fill-input" id="t27b" placeholder="?%"></div>
+    <div><div class="blog-label">в) 150% від вихідного = в скільки разів більше?</div><input class="fill-input" id="t27c" placeholder="?"></div>
+    <div><div class="blog-label">г) Якщо щось стало 200% — воно подвоїлося чи потроїлося?</div><input class="fill-input" id="t27d" placeholder="?"></div>
+  </div>
+  <div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT27()">Перевірити</button><button class="btn btn-outline btn-sm" onclick="resetT27()">Скинути</button></div>
+  <div class="fb" id="t27-fb"></div>`;
+}
+function checkT27(){
+  const answers={t27a:'150%',t27b:'350%',t27c:'1,5',t27d:'подвоїлося'};
+  let ok=0;
+  Object.entries(answers).forEach(([id,ans])=>{
+    const el=document.getElementById(id);
+    const correct=el.value.toLowerCase().replace(/\s/g,'').includes(ans.toLowerCase().replace(/\s/g,''));
+    el.className='fill-input '+(el.value?correct?'ok':'no':'');
+    if(correct)ok++;
+  });
+  const fb=document.getElementById('t27-fb');
+  fb.className='fb '+(ok===4?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з 4`;
+  setResult(2,'t27',ok===4?'correct':ok>0?'wrong':'skip');
+}
+function resetT27(){
+  ['t27a','t27b','t27c','t27d'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.className='fill-input';}});
+  document.getElementById('t27-fb').className='fb';document.getElementById('t27-fb').textContent='';
+}
+function checkBlog2(){
+  const dec=parseFloat(document.getElementById('blog2-dec').value.replace(',','.'));
+  const pct=parseFloat(document.getElementById('blog2-pct').value.replace('%',''));
+  const fb=document.getElementById('blog2-fb');
+  if(!dec||!pct){fb.className='fb no';fb.textContent='Введи обидва значення';return;}
+  if(Math.abs(dec*100-pct)<0.01){fb.className='fb ok';fb.textContent='✓ Правильно! '+dec+' × 100 = '+pct+'%';}
+  else{fb.className='fb no';fb.textContent='✗ Перевір: '+dec+' × 100 = '+(dec*100)+'%, а не '+pct+'%';}
+}
+
+// ═══════════════════════════════════════════════
+// ═══ DAY 3 TASKS ═══════════════════════════════
+// ═══════════════════════════════════════════════
+
+// TASK 3.2 — match
+function buildT32(){
+  const qs=[
+    {v:'0,3',ans:'З'},
+    {v:'2,5',ans:'Г'},
+    {v:'0,08',ans:'Ж'},
+    {v:'0,6',ans:'Е'},
+  ];
+  const as=[
+    {l:'А',v:'1/3'},{l:'Б',v:'4/5'},{l:'В',v:'5/3'},{l:'Г',v:'5/2'},
+    {l:'Д',v:'5/4'},{l:'Е',v:'3/5'},{l:'Ж',v:'2/25'},{l:'З',v:'3/10'},{l:'І',v:'2/3'},
+  ];
+  buildMatchTask('t32-wrap','t32',qs,as,3);
+}
+
+// TASK 3.3 — circular table
+const t33data = [
+  {frac:'3/4',dec:'',pct:'',ansDec:'0,75',ansPct:'75%'},
+  {frac:'',dec:'0,6',pct:'',ansFrac:'3/5',ansPct:'60%'},
+  {frac:'',dec:'',pct:'35%',ansFrac:'7/20',ansDec:'0,35'},
+  {frac:'7/10',dec:'',pct:'',ansDec:'0,7',ansPct:'70%'},
+  {frac:'',dec:'0,125',pct:'',ansFrac:'1/8',ansPct:'12,5%'},
+  {frac:'',dec:'',pct:'4%',ansFrac:'1/25',ansDec:'0,04'},
+];
+function buildT33(){
+  let html='<table class="fill-table"><thead><tr><th>Дріб</th><th>Десяткова</th><th>Відсоток</th></tr></thead><tbody>';
+  t33data.forEach((r,i)=>{
+    const fracCell=r.frac?`<td style="font-weight:700;font-family:var(--font)">${r.frac}</td>`:`<td><input class="fill-input" id="t33f${i}" placeholder="?"></td>`;
+    const decCell=r.dec?`<td style="font-weight:700;font-family:var(--font)">${r.dec}</td>`:`<td><input class="fill-input" id="t33d${i}" placeholder="?"></td>`;
+    const pctCell=r.pct?`<td style="font-weight:700;font-family:var(--font)">${r.pct}</td>`:`<td><input class="fill-input" id="t33p${i}" placeholder="?"></td>`;
+    html+=`<tr>${fracCell}${decCell}${pctCell}</tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('t33-table').innerHTML=html;
+}
+function checkT33(){
+  let ok=0,total=0;
+  t33data.forEach((r,i)=>{
+    const check=(id,ans)=>{
+      total++;
+      const el=document.getElementById(id);
+      if(!el)return;
+      const correct=norm(el.value)===norm(ans);
+      el.className='fill-input '+(el.value?correct?'ok':'no':'');
+      if(correct)ok++;
+    };
+    if(!r.frac)check('t33f'+i,r.ansFrac);
+    if(!r.dec)check('t33d'+i,r.ansDec);
+    if(!r.pct)check('t33p'+i,r.ansPct);
+  });
+  const fb=document.getElementById('t33-fb');
+  fb.className='fb '+(ok===total?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${total}`;
+  setResult(3,'t33',ok===total?'correct':ok>0?'wrong':'skip');
+}
+function resetT33(){
+  t33data.forEach((_,i)=>{
+    ['t33f','t33d','t33p'].forEach(p=>{const el=document.getElementById(p+i);if(el){el.value='';el.className='fill-input';}});
+  });
+  document.getElementById('t33-fb').className='fb';document.getElementById('t33-fb').textContent='';
+}
+
+// TASKS 3.6, 3.7
+function buildT36(){
+  document.getElementById('t36-wrap').innerHTML=`
+  <div class="theory"><div class="theory-title">Розстав по зростанню</div><p>Переведи всі числа в одну форму, потім порівняй.</p></div>
+  <div style="margin-bottom:12px"><p class="task-q"><strong>Набір А:</strong> 3/8, 0,4, 35%, 2/5, 0,38</p>
+  <div class="blog-label">Правильний порядок (від меншого до більшого):</div>
+  <input class="fill-input" id="t36a" placeholder="Наприклад: 35%, 3/8, 0,38, 0,4=2/5" style="width:100%;margin-top:4px"></div>
+  <div><p class="task-q"><strong>Набір Б:</strong> 1/6, 15%, 0,2, 1/5, 18%</p>
+  <div class="blog-label">Правильний порядок:</div>
+  <input class="fill-input" id="t36b" placeholder="Переведи всі в %..." style="width:100%;margin-top:4px"></div>
+  <div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT36()">Перевірити</button></div>
+  <div class="fb" id="t36-fb"></div>`;
+}
+function checkT36(){
+  const fb=document.getElementById('t36-fb');
+  fb.className='fb info';
+  fb.textContent='Набір А: 35% < 3/8(37,5%) < 0,38 < 0,4=2/5. Набір Б: 15% < 1/6(≈16,7%) < 18% < 0,2=1/5. Перевір свої відповіді!';
+  setResult(3,'t36',document.getElementById('t36a').value?'correct':'skip');
+}
+
+function buildT37(){
+  document.getElementById('t37-wrap').innerHTML=`
+  <div class="theory"><div class="theory-title">Чому 0,999... = 1?</div><p>Деякі дроби при переведенні дають нескінченні десяткові. Це не помилка — це математика.</p></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+    <div><div class="blog-label">а) Які дроби дадуть НЕСКІНЧЕННУ десяткову? (обери всі)</div>
+    <div class="opts" style="margin-top:6px" id="t37opts">
+      ${['1/4','1/3','1/6','1/8','1/7','1/9','1/12'].map(f=>`<button class="obtn" onclick="toggleT37(this,'${f}')">${f}</button>`).join('')}
+    </div></div>
+    <div>
+      <div><div class="blog-label">б) 0,(9) = 0,999... порівняно з 1:</div>
+      <select class="msel" id="t37b" style="margin-top:4px"><option value="">—</option><option>Менше 1</option><option>Рівне 1</option><option>Більше 1</option></select></div>
+      <div style="margin-top:10px"><div class="blog-label">в) 0,(6) = ? (дріб)</div>
+      <input class="fill-input" id="t37c" placeholder="?" style="margin-top:4px"></div>
+    </div>
+  </div>
+  <div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT37()">Перевірити</button></div>
+  <div class="fb" id="t37-fb"></div>`;
+}
+const t37periodic=['1/3','1/6','1/7','1/9','1/12'];
+let t37sel=new Set();
+function toggleT37(btn,f){btn.classList.toggle('ok');if(t37sel.has(f))t37sel.delete(f);else t37sel.add(f);}
+function checkT37(){
+  const correct=new Set(t37periodic);
+  const ok1=[...t37sel].every(f=>correct.has(f))&&[...correct].every(f=>t37sel.has(f));
+  const ok2=document.getElementById('t37b').value==='Рівне 1';
+  const ok3=norm(document.getElementById('t37c').value)==='2/3';
+  const ok=ok1+ok2+ok3;
+  const fb=document.getElementById('t37-fb');
+  fb.className='fb '+(ok===3?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з 3. Нескінченні: 1/3, 1/6, 1/7, 1/9, 1/12. 0,(9)=1 — математичний факт! 0,(6)=2/3.`;
+  setResult(3,'t37',ok===3?'correct':ok>0?'wrong':'skip');
+}
+
+function saveBlog(day){
+  document.getElementById('blog'+day+'-fb').className='fb ok';
+  document.getElementById('blog'+day+'-fb').textContent='✓ Збережено! Відправ у чат групи для взаємоперевірки.';
+}
+
+// ═══════════════════════════════════════════════
+// ═══ DAY 4 TASKS ═══════════════════════════════
+// ═══════════════════════════════════════════════
+
+// WARMUP
+const warmupData = [
+  {q:'1/2 = ?%', ans:'50%'},
+  {q:'0,75 = ?%', ans:'75%'},
+  {q:'25% = ? (дріб)', ans:'1/4'},
+  {q:'1/3 ≈ ?%', ans:'33,(3)%'},
+  {q:'0,1 = ?%', ans:'10%'},
+  {q:'3/4 = ? (дес.)', ans:'0,75'},
+  {q:'20% = ? (дріб)', ans:'1/5'},
+  {q:'0,375 = ?%', ans:'37,5%'},
+  {q:'66,(6)% = ? (дріб)', ans:'2/3'},
+  {q:'1/8 = ?%', ans:'12,5%'},
+];
+function buildWarmup(){
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">';
+  warmupData.forEach((w,i)=>{
+    html+=`<div><label style="font-size:14px;font-weight:600">${i+1}. ${w.q}</label><input class="fill-input" id="wu${i}" placeholder="?" style="margin-top:4px"></div>`;
+  });
+  html+='</div>';
+  document.getElementById('t4warm-wrap').innerHTML=html;
+}
+function checkWarmup(){
+  let ok=0;
+  warmupData.forEach((w,i)=>{
+    const el=document.getElementById('wu'+i);
+    const correct=norm(el.value)===norm(w.ans);
+    el.className='fill-input '+(el.value?correct?'ok':'no':'');
+    if(correct)ok++;
+  });
+  const fb=document.getElementById('t4warm-fb');
+  fb.className='fb '+(ok>=8?'ok':ok>=5?'info':'no');
+  fb.textContent=`${ok} з 10 — ${ok>=8?'відмінно!':ok>=5?'добре, продовжуємо!':'повтори ключові значення з Дня 1'}`;
+  setResult(4,'t4w',ok>=8?'correct':ok>0?'wrong':'skip');
+}
+function resetWarmup(){
+  warmupData.forEach((_,i)=>{const el=document.getElementById('wu'+i);if(el){el.value='';el.className='fill-input';}});
+  document.getElementById('t4warm-fb').className='fb';document.getElementById('t4warm-fb').textContent='';
+}
+
+// TASK 4.1 — find odd one out
+const t41data = [
+  {items:['0,5','50%','1/2','0,05'], odd:'0,05', exp:'0,05 = 5%, не 50%'},
+  {items:['75%','0,75','3/4','7,5%'], odd:'7,5%', exp:'7,5% = 0,075, не 0,75'},
+  {items:['1/5','0,2','2%','20%'], odd:'2%', exp:'2% = 0,02, не 0,2'},
+  {items:['0,125','12,5%','1/8','1,25%'], odd:'1,25%', exp:'1,25% = 0,0125, не 0,125'},
+  {items:['2/3','0,(6)','66%','66,(6)%'], odd:'66%', exp:'66% = 0,66, а не 0,(6)'},
+];
+let t41sel={};
+function buildT41(){
+  const w=document.getElementById('t41-items');
+  t41data.forEach((t,i)=>{
+    const div=document.createElement('div');
+    div.style.cssText='margin-bottom:12px;';
+    div.innerHTML=`<p style="font-size:13px;color:var(--gray);margin-bottom:6px">Рядок ${i+1}:</p><div class="opts" id="t41o${i}">${t.items.map(item=>`<button class="obtn" onclick="pickT41(${i},this,'${item}')">${item}</button>`).join('')}</div><div style="font-size:12px;color:var(--gray);margin-top:4px;font-style:italic;" id="t41exp${i}"></div>`;
+    w.appendChild(div);
+  });
+}
+function pickT41(i,btn,val){
+  document.getElementById('t41o'+i).querySelectorAll('button').forEach(b=>b.classList.remove('ok','no','selected'));
+  t41sel[i]=val;
+  btn.classList.add('selected');
+  document.getElementById('t41exp'+i).textContent='';
+}
+function checkT41(){
+  let ok=0;
+  t41data.forEach((t,i)=>{
+    const sel=t41sel[i];
+    const btns=document.getElementById('t41o'+i).querySelectorAll('button');
+    btns.forEach(b=>b.classList.remove('ok','no','selected'));
+    if(sel){
+      const correct=sel===t.odd;
+      btns.forEach(b=>{if(b.textContent===sel)b.classList.add(correct?'ok':'no');});
+      document.getElementById('t41exp'+i).textContent=correct?('✓ '+t.exp):('Зайве: '+t.odd+'. '+t.exp);
+      if(correct)ok++;
+    }
+  });
+  const fb=document.getElementById('t41-fb');
+  fb.className='fb '+(ok===t41data.length?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${t41data.length}`;
+  setResult(4,'t41',ok===t41data.length?'correct':Object.keys(t41sel).length>0?'wrong':'skip');
+}
+function resetT41(){
+  t41sel={};
+  document.querySelectorAll('[id^="t41o"] button').forEach(b=>b.classList.remove('ok','no','selected'));
+  document.querySelectorAll('[id^="t41exp"]').forEach(el=>el.textContent='');
+  document.getElementById('t41-fb').className='fb';
+  document.getElementById('t41-fb').textContent='';
+}
+
+// TASK 4.2 — sort
+function buildT42(){
+  document.getElementById('t42-wrap').innerHTML=`
+  <div style="margin-bottom:12px"><p class="task-q"><strong>Набір А (простий):</strong> 1/4, 30%, 0,2, 2/5, 35%</p>
+  <input class="fill-input" id="t42a" placeholder="від меншого до більшого..." style="width:100%;margin-top:6px"></div>
+  <div style="margin-bottom:12px"><p class="task-q"><strong>Набір Б (середній):</strong> 5/8, 0,6, 58%, 3/5, 62%</p>
+  <input class="fill-input" id="t42b" placeholder="від меншого до більшого..." style="width:100%;margin-top:6px"></div>
+  <div><p class="task-q"><strong>Набір В (складний):</strong> 1/3, 0,3, 32%, 3/10, 31%</p>
+  <input class="fill-input" id="t42c" placeholder="від меншого до більшого..." style="width:100%;margin-top:6px"></div>
+  <div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT42()">Перевірити відповіді</button></div>
+  <div class="fb" id="t42-fb"></div>`;
+}
+function checkT42(){
+  const fb=document.getElementById('t42-fb');
+  fb.className='fb info';
+  fb.textContent='А: 0,2 < 1/4 < 30% < 35% < 2/5. Б: 58% < 62% < 0,6=3/5 < 5/8. В: 0,3=3/10 < 31% < 32% < 1/3. Перевір!';
+  const answered=document.getElementById('t42a').value||document.getElementById('t42b').value;
+  setResult(4,'t42',answered?'correct':'skip');
+}
+
+// TASK 4.3 — class
+function buildT43(){
+  document.getElementById('t43-wrap').innerHTML=`
+  <table class="fill-table">
+    <thead><tr><th>Група</th><th>Дріб</th><th>Десяткова</th><th>Відсоток</th></tr></thead>
+    <tbody>
+      <tr><td>Спорт (8 з 25)</td><td><input class="fill-input" id="t43f1" placeholder="?"></td><td><input class="fill-input" id="t43d1" placeholder="?"></td><td><input class="fill-input" id="t43p1" placeholder="?"></td></tr>
+      <tr><td>Музика (5 з 25)</td><td><input class="fill-input" id="t43f2" placeholder="?"></td><td><input class="fill-input" id="t43d2" placeholder="?"></td><td><input class="fill-input" id="t43p2" placeholder="?"></td></tr>
+      <tr><td>Нікуди (решта)</td><td><input class="fill-input" id="t43f3" placeholder="?"></td><td><input class="fill-input" id="t43d3" placeholder="?"></td><td><input class="fill-input" id="t43p3" placeholder="?"></td></tr>
+    </tbody>
+  </table>`;
+}
+function checkT43(){
+  const ans=[
+    {f:'8/25',d:'0,32',p:'32%'},
+    {f:'1/5',d:'0,2',p:'20%'},
+    {f:'12/25',d:'0,48',p:'48%'},
+  ];
+  let ok=0,total=9;
+  ans.forEach((a,i)=>{
+    const j=i+1;
+    const fe=document.getElementById('t43f'+j),de=document.getElementById('t43d'+j),pe=document.getElementById('t43p'+j);
+    const fOk=norm(fe.value)===norm(a.f)||norm(fe.value)===norm({1:'8/25',2:'5/25',3:'12/25'}[j]);
+    const dOk=norm(de.value)===norm(a.d);
+    const pOk=norm(pe.value)===norm(a.p);
+    fe.className='fill-input '+(fe.value?fOk?'ok':'no':'');
+    de.className='fill-input '+(de.value?dOk?'ok':'no':'');
+    pe.className='fill-input '+(pe.value?pOk?'ok':'no':'');
+    if(fOk)ok++;if(dOk)ok++;if(pOk)ok++;
+  });
+  const fb=document.getElementById('t43-fb');
+  fb.className='fb '+(ok===total?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${total}. Перевірка: сума відсотків = 32+20+48 = 100% ✓`;
+  setResult(4,'t43',ok>=6?'correct':ok>0?'wrong':'skip');
+}
+
+// TASK 4.4 — complex mix table
+const t44data=[
+  {frac:'7/8',dec:'',pct:'',ansDec:'0,875',ansPct:'87,5%'},
+  {frac:'',dec:'0,015',pct:'',ansFrac:'3/200',ansPct:'1,5%'},
+  {frac:'',dec:'',pct:'0,4%',ansFrac:'1/250',ansDec:'0,004'},
+  {frac:'11/20',dec:'',pct:'',ansDec:'0,55',ansPct:'55%'},
+  {frac:'',dec:'1,375',pct:'',ansFrac:'11/8',ansPct:'137,5%'},
+  {frac:'',dec:'',pct:'250%',ansFrac:'5/2',ansDec:'2,5'},
+];
+function buildT44(){
+  let html='<table class="fill-table"><thead><tr><th>Дріб</th><th>Десяткова</th><th>Відсоток</th></tr></thead><tbody>';
+  t44data.forEach((r,i)=>{
+    const fc=r.frac?`<td style="font-weight:700;font-family:var(--font)">${r.frac}</td>`:`<td><input class="fill-input" id="t44f${i}" placeholder="?"></td>`;
+    const dc=r.dec?`<td style="font-weight:700;font-family:var(--font)">${r.dec}</td>`:`<td><input class="fill-input" id="t44d${i}" placeholder="?"></td>`;
+    const pc=r.pct?`<td style="font-weight:700;font-family:var(--font)">${r.pct}</td>`:`<td><input class="fill-input" id="t44p${i}" placeholder="?"></td>`;
+    html+=`<tr>${fc}${dc}${pc}</tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('t44-table').innerHTML=html;
+}
+function checkT44(){
+  let ok=0,total=0;
+  t44data.forEach((r,i)=>{
+    const chk=(id,ans)=>{total++;const el=document.getElementById(id);if(!el)return;const c=norm(el.value)===norm(ans);el.className='fill-input '+(el.value?c?'ok':'no':'');if(c)ok++;};
+    if(!r.frac)chk('t44f'+i,r.ansFrac);
+    if(!r.dec)chk('t44d'+i,r.ansDec);
+    if(!r.pct)chk('t44p'+i,r.ansPct);
+  });
+  const fb=document.getElementById('t44-fb');
+  fb.className='fb '+(ok===total?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${total}`;
+  setResult(4,'t44',ok===total?'correct':ok>0?'wrong':'skip');
+}
+function resetT44(){
+  t44data.forEach((_,i)=>['t44f','t44d','t44p'].forEach(p=>{const el=document.getElementById(p+i);if(el){el.value='';el.className='fill-input';}}));
+  document.getElementById('t44-fb').className='fb';document.getElementById('t44-fb').textContent='';
+}
+
+// TASK 4.5 — ad errors
+const t45data=[
+  {q:'На упаковці: «На 1/4 менше солі!». Тім прочитав: «Солі стало 25% від вихідного».',correct:false,fix:'«На 1/4 менше» = прибрали 25%, залишилося 75%.'},
+  {q:'В магазині: «Знижка 50%, потім ще 20%!». Софія порахувала: «Разом знижка 70%».',correct:false,fix:'100→50→40. Реальна знижка 60%, не 70%.'},
+  {q:'В новинах: «Продажі зросли на 0,5». Журналіст написав: «Зростання 5%».',correct:false,fix:'0,5 = 50%, не 5%.'},
+  {q:'На йогурті: «Жирність 0,1%». Мама: «Це практично знежирений — менше 1%».',correct:true,fix:''},
+];
+let t45sel={};
+function buildT45(){
+  const w=document.getElementById('t45-items');
+  t45data.forEach((t,i)=>{
+    const div=document.createElement('div');
+    div.style.cssText='margin-bottom:12px;padding:12px;background:var(--gray-l);border-radius:var(--rs);';
+    div.innerHTML=`<p style="font-size:14px;margin-bottom:8px">${t.q}</p><div class="opts"><button class="obtn" id="t45y${i}" onclick="pickT45(${i},true)">✓ Вірно</button><button class="obtn" id="t45n${i}" onclick="pickT45(${i},false)">✗ Невірно</button></div><div style="font-size:12px;color:var(--gray);margin-top:6px;font-style:italic;" id="t45fix${i}"></div>`;
+    w.appendChild(div);
+  });
+}
+function pickT45(i,val){
+  ['t45y','t45n'].forEach(p=>{const el=document.getElementById(p+i);if(el)el.classList.remove('ok','no','selected');});
+  t45sel[i]=val;
+  const btn=document.getElementById(val?'t45y'+i:'t45n'+i);
+  if(btn)btn.classList.add('selected');
+}
+function checkT45(){
+  let ok=0;
+  t45data.forEach((t,i)=>{
+    const sel=t45sel[i];
+    ['t45y','t45n'].forEach(p=>{const el=document.getElementById(p+i);if(el)el.classList.remove('ok','no','selected');});
+    if(sel===undefined)return;
+    const correct=sel===t.correct;
+    const btn=document.getElementById(sel?'t45y'+i:'t45n'+i);
+    if(btn)btn.classList.add(correct?'ok':'no');
+    if(correct)ok++;
+    const fix=document.getElementById('t45fix'+i);
+    if(fix)fix.textContent=(!correct&&t.fix)?'Правильно: '+t.fix:'';
+  });
+  const fb=document.getElementById('t45-fb');
+  fb.className='fb '+(ok===t45data.length?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з ${t45data.length}`;
+  setResult(4,'t45',ok===t45data.length?'correct':Object.keys(t45sel).length>0?'wrong':'skip');
+}
+function resetT45(){
+  t45sel={};
+  t45data.forEach((_,i)=>{
+    ['t45y','t45n'].forEach(p=>{const el=document.getElementById(p+i);if(el)el.classList.remove('ok','no','selected');});
+    const fix=document.getElementById('t45fix'+i);if(fix)fix.textContent='';
+  });
+  document.getElementById('t45-fb').className='fb';document.getElementById('t45-fb').textContent='';
+}
+
+// TASK 4.6 — promille
+function buildT46(){
+  document.getElementById('t46-wrap').innerHTML=`
+  <div class="chars"><div class="bubble sof"><div class="bname sof">Софія</div>Пам'ятаєш проміле з Дня 1? Сьогодні — реальні ситуації.</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+    <div><div class="blog-label">Солоність Чорного моря ≈ 18‰ = ?%</div><input class="fill-input" id="t46a" placeholder="?%"></div>
+    <div><div class="blog-label">Солоність Мертвого моря ≈ 300‰ = ?%</div><input class="fill-input" id="t46b" placeholder="?%"></div>
+    <div><div class="blog-label">Мертве море в скільки разів солоніше Чорного?</div><input class="fill-input" id="t46c" placeholder="≈? разів"></div>
+    <div><div class="blog-label">18% хрому в сталі = ?‰</div><input class="fill-input" id="t46d" placeholder="?‰"></div>
+  </div>
+  <div class="action-row"><button class="btn btn-primary btn-sm" onclick="checkT46()">Перевірити</button></div>
+  <div class="fb" id="t46-fb"></div>`;
+}
+function checkT46(){
+  const ans={t46a:'1,8%',t46b:'30%',t46c:'16,7',t46d:'180‰'};
+  let ok=0;
+  Object.entries(ans).forEach(([id,a])=>{
+    const el=document.getElementById(id);
+    const v=el.value.replace(',','.');
+    const c=norm(el.value)===norm(a)||Math.abs(parseFloat(v)-parseFloat(a.replace('%','').replace('‰','').replace(',','.')))< 0.1;
+    el.className='fill-input '+(el.value?c?'ok':'no':'');
+    if(c)ok++;
+  });
+  const fb=document.getElementById('t46-fb');
+  fb.className='fb '+(ok===4?'ok':ok>0?'info':'no');
+  fb.textContent=`Правильно: ${ok} з 4`;
+  setResult(4,'t46',ok>=3?'correct':ok>0?'wrong':'skip');
+}
+
+function saveInv(){
+  const w=document.getElementById('inv-where').value;
+  const fb=document.getElementById('inv-fb');
+  if(!w){fb.className='fb no';fb.textContent='Заповни хоча б поле "Де знайшов"';return;}
+  fb.className='fb ok';fb.textContent='✓ Розслідування збережено! Поділись у чаті групи.';
+  setResult(4,'t47','correct');
+}
+
+let verdict=null;
+function setVerdict(v){
+  verdict=v;
+  document.getElementById('verdict-yes').classList.toggle('ok',v==='yes');
+  document.getElementById('verdict-no').classList.toggle('ok',v==='no');
+}
+function savePost(){
+  const title=document.getElementById('post-title').value;
+  const fb=document.getElementById('post-fb');
+  if(!title){fb.className='fb no';fb.textContent='Додай заголовок поста';return;}
+  fb.className='fb ok';fb.textContent='✓ Пост збережено! Відправ у чат для голосування.';
+}
+function checkBlog2(){
+  const dec=parseFloat(document.getElementById('blog2-dec').value.replace(',','.'));
+  const pct=parseFloat(document.getElementById('blog2-pct').value.replace('%',''));
+  const fb=document.getElementById('blog2-fb');
+  if(!dec||!pct){fb.className='fb no';fb.textContent='Введи обидва значення';return;}
+  if(Math.abs(dec*100-pct)<0.01){fb.className='fb ok';fb.textContent='✓ '+dec+' × 100 = '+pct+'% — правильно!';}
+  else{fb.className='fb no';fb.textContent='✗ Перевір: '+dec+' × 100 = '+(dec*100)+'%, а не '+pct+'%';}
+}
+
+// ═══════════════════════════════════════════════
+// GENERIC MATCH TASK
+// ═══════════════════════════════════════════════
+function buildMatchTask(wid, prefix, qs, as, day){
+  const w=document.getElementById(wid);
+  if(!w)return;
+  const wrap=document.createElement('div');
+  wrap.className='match-wrap';
+  const L=document.createElement('div'),R=document.createElement('div');
+  L.innerHTML='<div class="col-hd">Завдання</div>';
+  R.innerHTML='<div class="col-hd">Варіанти відповідей</div>';
+  qs.forEach((q,i)=>{
+    const row=document.createElement('div');row.className='mrow';
+    const opts=as.map(a=>`<option value="${a.l}">${a.l}</option>`).join('');
+    row.innerHTML=`<span class="mval">${q.v}</span><span style="color:var(--gray)">=</span><select class="msel" id="${prefix}s${i}" onchange="updMatchUsed('${prefix}',${qs.length})"><option value="">—</option>${opts}</select><div class="mind" id="${prefix}d${i}"></div>`;
+    L.appendChild(row);
+  });
+  as.forEach(a=>{
+    const row=document.createElement('div');row.className='arow';row.id=`${prefix}r${a.l}`;
+    row.innerHTML=`<div class="albl">${a.l}</div><span class="aval">${a.v}</span>`;
+    R.appendChild(row);
+  });
+  wrap.appendChild(L);wrap.appendChild(R);w.appendChild(wrap);
+  const ar=document.createElement('div');ar.className='action-row';
+  ar.innerHTML=`<button class="btn btn-primary btn-sm" onclick="chkMatch('${prefix}',${JSON.stringify(qs.map(q=>q.ans))},${qs.length},${day})">Перевірити</button><button class="btn btn-outline btn-sm" onclick="rstMatch('${prefix}',${qs.length})">Скинути</button>`;
+  w.appendChild(ar);
+  const fb=document.createElement('div');fb.className='fb';fb.id=prefix+'fb';w.appendChild(fb);
+}
+function updMatchUsed(prefix,n){
+  const sel=[];
+  for(let i=0;i<n;i++){const s=document.getElementById(prefix+'s'+i);if(s&&s.value)sel.push(s.value);}
+  document.querySelectorAll(`[id^="${prefix}r"]`).forEach(row=>{
+    const lt=row.id.replace(prefix+'r','');
+    row.classList.toggle('used',sel.includes(lt));
+  });
+}
+function chkMatch(prefix,answers,n,day){
+  let ok=0;
+  answers.forEach((a,i)=>{
+    const s=document.getElementById(prefix+'s'+i),d=document.getElementById(prefix+'d'+i);
+    if(!s||!s.value){if(d){d.textContent='';d.className='mind';}return;}
+    if(s.value===a){d.textContent='✓';d.className='mind ok';s.className='msel ok';ok++;}
+    else{d.textContent='✗';d.className='mind no';s.className='msel no';}
+  });
+  const fb=document.getElementById(prefix+'fb');
+  if(fb){fb.className='fb '+(ok===n?'ok':ok>0?'info':'no');fb.textContent=`Правильно: ${ok} з ${n}`;}
+  const taskMap={t23:'t23',t32:'t32'};
+  if(taskMap[prefix])setResult(day,taskMap[prefix],ok===n?'correct':ok>0?'wrong':'skip');
+}
+function rstMatch(prefix,n){
+  for(let i=0;i<n;i++){
+    const s=document.getElementById(prefix+'s'+i),d=document.getElementById(prefix+'d'+i);
+    if(s){s.value='';s.className='msel';}
+    if(d){d.textContent='';d.className='mind';}
+  }
+  document.querySelectorAll(`[id^="${prefix}r"]`).forEach(row=>row.classList.remove('used'));
+  const fb=document.getElementById(prefix+'fb');if(fb){fb.textContent='';fb.className='fb';}
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function norm(s) {
+  if(!s) return '';
+  return s.toString().trim().toLowerCase()
+    .replace(/\s+/g,'')
+    .replace(/,/g,'.')
+    .replace(/%$/,'%')
+    .replace(/\.$/, '');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildDayGrid();
+  updateProgress();
+
+  // Day 1
+  buildT11();
+  buildT12();
+  buildT13();
+  buildT14();
+  buildT15();
+  buildT16();
+
+  // Day 2
+  buildSimpleFill('t21');
+  buildSimpleFill('t22');
+  buildT23();
+  buildSimpleFill('t24');
+  buildT25();
+  buildT26();
+  buildT27();
+
+  // Day 3
+  buildSimpleFill('t31');
+  buildT32();
+  buildT33();
+  buildSimpleFill('t34');
+  buildSimpleFill('t35');
+  buildT36();
+  buildT37();
+
+  // Day 4
+  buildWarmup();
+  buildT41();
+  buildT42();
+  buildT43();
+  buildT44();
+  buildT45();
+  buildT46();
+
+  updateTrackers();
+});
+</script>
+</body>
+</html>
