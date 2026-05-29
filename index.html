@@ -207,20 +207,27 @@ h1, h2, h3, .num, .badge, .task-title, .day-title {
 .grid-label { font-size: 13px; font-weight: 600; color: var(--mid); margin-bottom: 6px; }
 .grid-100 {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 2px;
-  width: 100%;
-  max-width: 240px;
-  margin: 0 auto;
+  grid-template-columns: repeat(10, 26px);
+  grid-template-rows: repeat(10, 26px);
+  gap: 3px;
+  width: fit-content;
+  margin: 8px auto;
+  padding: 8px;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid #E2E8F0;
 }
 .cell {
-  aspect-ratio: 1;
-  border-radius: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
   background: #E2E8F0;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.15s;
   border: none;
   outline: none;
+  display: block;
+  padding: 0;
 }
 .cell.filled { background: var(--blue); }
 .cell.filled.green { background: var(--green); }
@@ -344,13 +351,21 @@ h1, h2, h3, .num, .badge, .task-title, .day-title {
 }
 .compare-mini {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 1px;
-  width: 100%;
-  max-width: 120px;
-  margin: 0 auto 4px;
+  grid-template-columns: repeat(10, 14px);
+  grid-template-rows: repeat(10, 14px);
+  gap: 2px;
+  width: fit-content;
+  margin: 0 auto 6px;
+  padding: 5px;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #E2E8F0;
 }
-.compare-mini .cell { border-radius: 1px; }
+.compare-mini .cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
 .compare-label {
   font-size: 13px;
   font-weight: 600;
@@ -407,8 +422,8 @@ h1, h2, h3, .num, .badge, .task-title, .day-title {
 /* ── RESPONSIVE ── */
 @media (max-width: 480px) {
   .day-tab .tab-label { display: none; }
-  .grid-100 { max-width: 200px; }
-  .compare-mini { max-width: 100px; }
+  .grid-100 { max-width: 280px; }
+  .compare-mini { max-width: 120px; }
 }
 </style>
 </head>
@@ -977,8 +992,10 @@ function makeGrid(id, cells, color, interactive, onUpdate) {
   const wrap = document.getElementById(id);
   if (!wrap) return;
   wrap.innerHTML = '';
-  const grid = document.createElement('div');
-  grid.className = 'grid-100';
+  // preserve compare-mini class, otherwise set grid-100
+  if (!wrap.classList.contains('compare-mini')) {
+    wrap.className = 'grid-100';
+  }
   for (let i = 0; i < 100; i++) {
     const cell = document.createElement('button');
     cell.className = 'cell' + (cells.includes(i) ? ' filled ' + (color||'') : '');
@@ -992,9 +1009,8 @@ function makeGrid(id, cells, color, interactive, onUpdate) {
       cell.style.cursor = 'default';
       cell.disabled = true;
     }
-    grid.appendChild(cell);
+    wrap.appendChild(cell);
   }
-  wrap.appendChild(grid);
 }
 
 function countFilled(gridId) {
@@ -1041,12 +1057,38 @@ function switchDay(n) {
 
 // ══ ДЕНЬ 1 ══
 
+// Helper — ліва половина (стовпці 0-4)
+function leftHalf() {
+  const cells = [];
+  for (let row=0; row<10; row++)
+    for (let col=0; col<5; col++)
+      cells.push(row*10 + col);
+  return cells;
+}
+// Helper — лівий верхній квадрат 5×5
+function topLeftQuarter() {
+  const cells = [];
+  for (let row=0; row<5; row++)
+    for (let col=0; col<5; col++)
+      cells.push(row*10 + col);
+  return cells;
+}
+// Helper — три чверті (все крім правого нижнього квадрата 5×5)
+function threeQuarters() {
+  const cells = [];
+  for (let i=0; i<100; i++) {
+    const row = Math.floor(i/10), col = i%10;
+    if (!(row>=5 && col>=5)) cells.push(i);
+  }
+  return cells;
+}
+
 // 1.1 — показуємо 5 сіток статично + питання
 function initTask11() {
   const configs = [
     { filled: Array.from({length:10},(_,i)=>i), label:'Сітка А — закрашено верхній рядок. Скільки %?' },
-    { filled: Array.from({length:50},(_,i)=>i), label:'Сітка Б — закрашена ліва половина. Скільки %?' },
-    { filled: Array.from({length:25},(_,i)=>i), label:'Сітка В — закрашений лівий верхній квадрат. Скільки %?' },
+    { filled: leftHalf(), label:'Сітка Б — закрашена ліва половина. Скільки %?' },
+    { filled: topLeftQuarter(), label:'Сітка В — закрашений лівий верхній квадрат. Скільки %?' },
     { filled: [0], label:'Сітка Г — закрашена 1 клітинка. Скільки %?' },
     { filled: Array.from({length:99},(_,i)=>i), label:'Сітка Д — закрашено 99 клітинок. Скільки %?' },
   ];
@@ -1059,7 +1101,7 @@ function initTask11() {
     div.innerHTML = `<div class="grid-label">${c.label}</div>`;
     const gid = 'g11_' + idx;
     div.innerHTML += `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div class="grid-100" id="${gid}" style="max-width:160px;"></div>
+      <div class="grid-100" id="${gid}" ></div>
       <div style="display:flex;align-items:center;gap:6px;">
         <input type="number" id="inp11_${idx}" min="0" max="100" style="width:60px;padding:8px;border:2px solid #CBD5E1;border-radius:8px;font-size:16px;font-family:'Nunito',sans-serif;font-weight:700;text-align:center;" placeholder="?">
         <span style="font-size:18px;font-weight:700;">%</span>
@@ -1088,7 +1130,12 @@ function reset11() {
   document.getElementById('ans11').className='answer-box';
 }
 
-// 1.2 — інтерактивні сітки
+// 1.2 — drag-to-paint сітки
+let isDragging = false;
+let dragColor = '';
+let dragGridId = '';
+let dragAction = 'fill'; // fill or erase
+
 function initTask12() {
   const tasks = [
     { label:'а) Закрась 30%', target:30, color:'green', id:'g12_0' },
@@ -1100,18 +1147,93 @@ function initTask12() {
   wrap.innerHTML = '';
   tasks.forEach(t => {
     const div = document.createElement('div');
-    div.style.marginBottom = '14px';
-    div.innerHTML = `<div class="grid-label">${t.label}</div>
+    div.style.marginBottom = '20px';
+    div.innerHTML = `
+      <div class="grid-label">${t.label}</div>
+      <div style="font-size:12px;color:var(--mid);margin-bottom:6px;">
+        💡 Затисни мишу і веди по клітинках щоб закрасити
+      </div>
       <div style="text-align:center;">
-        <div class="grid-100" id="${t.id}" style="max-width:160px;margin:0 auto;"></div>
-        <div id="${t.id}_r" style="margin-top:6px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--blue);">0%</div>
+        <div class="grid-100" id="${t.id}"></div>
+        <div id="${t.id}_r" style="margin-top:8px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;color:var(--blue);">0%</div>
       </div>`;
     wrap.appendChild(div);
-    makeGrid(t.id, [], t.color, true, () => {
-      const n = countFilled(t.id);
-      document.getElementById(t.id+'_r').textContent = n + '%';
-    });
+    makePaintGrid(t.id, t.color);
   });
+
+  // зупиняємо drag коли відпускаємо мишу будь-де
+  document.addEventListener('mouseup', () => { isDragging = false; });
+  document.addEventListener('touchend', () => { isDragging = false; });
+}
+
+function makePaintGrid(id, color) {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  wrap.className = 'grid-100';
+  for (let i = 0; i < 100; i++) {
+    const cell = document.createElement('button');
+    cell.className = 'cell';
+    cell.dataset.index = i;
+    cell.dataset.grid = id;
+    cell.dataset.color = color;
+
+    // mouse events
+    cell.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      isDragging = true;
+      dragGridId = id;
+      dragColor = color;
+      dragAction = cell.classList.contains('filled') ? 'erase' : 'fill';
+      paintCell(cell, color);
+      updateResult12(id);
+    });
+    cell.addEventListener('mouseover', (e) => {
+      if (isDragging && dragGridId === id) {
+        paintCell(cell, color);
+        updateResult12(id);
+      }
+    });
+
+    // touch events
+    cell.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      isDragging = true;
+      dragGridId = id;
+      dragColor = color;
+      dragAction = cell.classList.contains('filled') ? 'erase' : 'fill';
+      paintCell(cell, color);
+      updateResult12(id);
+    }, {passive: false});
+
+    wrap.appendChild(cell);
+  }
+
+  // touch move — знаходимо клітинку під пальцем
+  wrap.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (el && el.classList.contains('cell') && el.dataset.grid === id) {
+      paintCell(el, color);
+      updateResult12(id);
+    }
+  }, {passive: false});
+}
+
+function paintCell(cell, color) {
+  if (dragAction === 'erase') {
+    cell.className = 'cell';
+  } else {
+    cell.className = 'cell filled ' + (color || '');
+  }
+}
+
+function updateResult12(gridId) {
+  const n = countFilled(gridId);
+  const el = document.getElementById(gridId + '_r');
+  if (el) el.textContent = n + '%';
 }
 
 function check12() {
@@ -1132,8 +1254,9 @@ function check12() {
 
 function reset12() {
   ['g12_0','g12_1','g12_2','g12_3'].forEach(id => {
-    resetGrid(id, id+'_r');
-    document.getElementById(id+'_r').textContent = '0%';
+    const g = document.getElementById(id);
+    if (g) g.querySelectorAll('.cell').forEach(c => c.className = 'cell');
+    updateResult12(id);
   });
   document.getElementById('ans12').className='answer-box';
 }
@@ -1364,7 +1487,7 @@ function initGrids24() {
     div.style.marginBottom='14px';
     div.innerHTML=`<div class="grid-label">${c.label}</div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div class="grid-100" id="g24_${i}" style="max-width:140px;"></div>
+      <div class="grid-100" id="g24_${i}" ></div>
       <div style="display:flex;gap:8px;align-items:center;">
         <input type="text" id="t24d${i}" style="width:55px;padding:6px;border:2px solid #CBD5E1;border-radius:6px;font-size:14px;text-align:center;" placeholder="1/?">
         <span style="font-size:14px;">=</span>
